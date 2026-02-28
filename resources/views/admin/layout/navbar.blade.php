@@ -7,14 +7,14 @@
                     <a class="opacity-5 text-white" href="javascript:;">Pages</a>
                 </li>
                 <!-- Breadcrumb untuk halaman aktif -->
-                <li class="breadcrumb-item text-sm text-white {{ Route::is('dashboard') ? 'active' : '' }}"
+                <li class="breadcrumb-item text-sm text-white {{ Route::is('admin.dashboard') ? 'active' : '' }}"
                     aria-current="page">
-                    {{ Route::is('Dashboard') ? 'Dashboard' : (Route::is('Pedagang') ? 'Pedagang' : (Route::is('Profile') ? 'Profile' : (Route::is('Tambah-Pesanan') ? 'Tambah-Pesanan' : (Route::is('Tambahadmin') ? 'Tambahadmin' : (Route::is('DataAdmin') ? 'DataAdmin' : (Route::is('Mitra') ? 'Mitra' : (Route::is('Keluhan') ? 'Keluhan' : (Route::is('Pendapatan') ? 'Pendapatan' : '')))))))) }}
+                    {{ Route::is('admin.dashboard') ? 'Dashboard' : (Route::is('admin.sellers.index') ? 'Sellers' : (Route::is('admin.profile.show') ? 'Profile' : (Route::is('partners.create') ? 'Add Partner' : (Route::is('admin.operators.create') ? 'Add Operator' : (Route::is('admin.operators.index') ? 'Operators' : (Route::is('partners.index') ? 'Partners' : (Route::is('admin.complaints.index') ? 'Complaints' : ''))))))) }}
                 </li>
             </ol>
             <!-- Judul untuk halaman aktif -->
             <h6 class="font-weight-bolder text-white mb-0">
-                {{ Route::is('Dashboard') ? 'Dashboard' : (Route::is('Pedagang') ? 'Pedagang' : (Route::is('DataAdmin') ? 'DataAdmin' : (Route::is('Keluhan') ? 'Keluhan' : (Route::is('Tambahadmin') ? 'Tambahadmin' : (Route::is('Tambah-Pesanan') ? 'Tambah-Pesanan' : (Route::is('Profile') ? 'Profile' : (Route::is('Mitra') ? 'Mitra' : (Route::is('Pendapatan') ? 'Pendapatan' : '')))))))) }}
+                {{ Route::is('admin.dashboard') ? 'Dashboard' : (Route::is('admin.sellers.index') ? 'Sellers' : (Route::is('admin.operators.index') ? 'Operators' : (Route::is('admin.complaints.index') ? 'Complaints' : (Route::is('admin.operators.create') ? 'Add Operator' : (Route::is('partners.create') ? 'Add Partner' : (Route::is('admin.profile.show') ? 'Profile' : (Route::is('partners.index') ? 'Partners' : ''))))))) }}
             </h6>
         </nav>
         <div class="collapse navbar-collapse mt-sm-0 mt-2 me-md-0 me-sm-4" id="navbar">
@@ -27,7 +27,7 @@
             <ul class="navbar-nav justify-content-end">
                 <!-- Menu Profile -->
                 <li class="nav-item d-flex align-items-center">
-                    <a href="{{ route('Profile') }}" class="nav-link text-white font-weight-bold px-2">
+                    <a href="{{ route('admin.profile.show') }}" class="nav-link text-white font-weight-bold px-2">
                         <i class="fa fa-user me-1"></i> <!-- Ikon Profile -->
                         <span class="d-sm-inline d-none">Profile</span>
                     </a>

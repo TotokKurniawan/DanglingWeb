@@ -7,7 +7,7 @@
     <div class="sidenav-header">
         <i class="fas fa-times p-3 cursor-pointer text-secondary opacity-5 position-absolute end-0 top-0 d-none d-xl-none"
             aria-hidden="true" id="iconSidenav"></i>
-        <a class="navbar-brand m-1" href="{{ route('Dashboard') }}" target="_blank">
+        <a class="navbar-brand m-1" href="{{ route('admin.dashboard') }}" target="_blank">
             <img src="{{ asset('admin_assets/img/logo-ct-dark.png') }}" class="navbar-brand-img h-100 " alt="main_logo">
             <span class="ms-3 font-weight-bold">Dangling</span>
         </a>
@@ -16,8 +16,8 @@
     <div class="collapse navbar-collapse w-auto" id="sidenav-collapse-main">
         <ul class="navbar-nav">
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('Dashboard') ? 'active' : '' }}"
-                    href="{{ route('Dashboard') }}">
+                <a class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"
+                    href="{{ route('admin.dashboard') }}">
                     <div
                         class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                         <i class="ni ni-tv-2 text-primary text-sm opacity-10"></i>
@@ -26,7 +26,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('Pedagang') ? 'active' : '' }}" href="{{ route('Pedagang') }}">
+                <a class="nav-link {{ request()->routeIs('admin.sellers.index') ? 'active' : '' }}" href="{{ route('admin.sellers.index') }}">
                     <div
                         class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                         <i class="ni ni-calendar-grid-58 text-warning text-sm opacity-10"></i>
@@ -35,7 +35,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('Keluhan') ? 'active' : '' }}" href="{{ route('Keluhan') }}">
+                <a class="nav-link {{ request()->routeIs('admin.complaints.index') ? 'active' : '' }}" href="{{ route('admin.complaints.index') }}">
                     <div
                         class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                         <i class="ni ni-credit-card text-success text-sm opacity-10"></i>
@@ -44,7 +44,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('Mitra') ? 'active' : '' }}" href="{{ route('Mitra') }}">
+                <a class="nav-link {{ request()->routeIs('partners.index') ? 'active' : '' }}" href="{{ route('partners.index') }}">
                     <div
                         class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                         <i class="ni ni-app text-info text-sm opacity-10"></i>
@@ -53,8 +53,8 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('DataAdmin') ? 'active' : '' }}"
-                    href="{{ route('DataAdmin') }}">
+                <a class="nav-link {{ request()->routeIs('admin.operators.index') ? 'active' : '' }}"
+                    href="{{ route('admin.operators.index') }}">
                     <div
                         class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                         <i class="ni ni-app text-info text-sm opacity-10"></i>

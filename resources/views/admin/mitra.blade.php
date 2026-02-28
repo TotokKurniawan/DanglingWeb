@@ -6,7 +6,7 @@
                 <div class="card mb-4">
                     <div class="card-header pb-0 d-flex justify-content-between align-items-center">
                         <h6>Table Mitra</h6>
-                        <a href="{{ route('Tambah-Pesanan') }}" class="btn btn-primary btn-sm" data-toggle="tooltip"
+                        <a href="{{ route('partners.create') }}" class="btn btn-primary btn-sm" data-toggle="tooltip"
                             data-original-title="Tambah data">
                             <i class="fas fa-plus"></i> Tambah
                         </a>
@@ -46,7 +46,7 @@
                                                 </div>
                                             </td>
                                             <td class="align-middle text-center text-sm">
-                                                <span class="text-xs">{{ $mitra->Perusahaan }}</span>
+                                                <span class="text-xs">{{ $mitra->perusahaan }}</span>
                                             </td>
                                             <td class="align-middle text-center">
                                                 <!-- Tombol Edit -->
@@ -67,7 +67,7 @@
 
                                                 <!-- Formulir untuk menghapus -->
                                                 <form id="delete-form-{{ $mitra->id }}"
-                                                    action="{{ route('mitras.destroy', $mitra->id) }}" method="POST"
+                                                    action="{{ route('partners.destroy', $mitra->id) }}" method="POST"
                                                     style="display: none;">
                                                     @csrf
                                                     @method('DELETE')

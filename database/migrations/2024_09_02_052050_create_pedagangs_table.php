@@ -10,24 +10,19 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-{
-    Schema::create('pedagangs', function (Blueprint $table) {
-        $table->id();
-        $table->string('namaToko')->nullable();
-        $table->char('telfon')->nullable();
-        $table->string('alamat')->nullable();
-        // $table->binary('foto');
-        $table->string('foto');
-        $table->enum('status', ['online', 'offline']);
-        // $table->decimal('latitude')->nullable();
-        // $table->decimal('longtitude')->nullable();
-        $table->unsignedBigInteger('user_id');
-        $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
-        $table->timestamps();
-    });
-}
-
-
+    {
+        Schema::create('pedagangs', function (Blueprint $table) {
+            $table->id();
+            $table->string('namaToko')->nullable();
+            $table->char('telfon')->nullable();
+            $table->string('alamat')->nullable();
+            $table->string('foto')->nullable();
+            $table->enum('status', ['online', 'offline']);
+            $table->unsignedBigInteger('user_id');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
+            $table->timestamps();
+        });
+    }
 
     /**
      * Reverse the migrations.

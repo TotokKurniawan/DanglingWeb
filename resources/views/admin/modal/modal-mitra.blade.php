@@ -8,7 +8,7 @@
                     <h5 class="modal-title" id="editMitraModalLabel-{{ $mitra->id }}">Edit Mitra</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form id="edit-mitra-form-{{ $mitra->id }}" action="{{ route('mitra.update', $mitra->id) }}"
+            <form id="edit-mitra-form-{{ $mitra->id }}" action="{{ route('partners.update', $mitra->id) }}"
                     method="POST">
                     @csrf
                     @method('PUT')
@@ -22,7 +22,7 @@
                         <div class="mb-6">
                             <label for="perusahaan" class="form-label">Perusahaan</label>
                             <input type="text" class="form-control" id="edit-perusahaan-{{ $mitra->id }}"
-                                name="perusahaan" value="{{ $mitra->Perusahaan }}" required>
+                                name="perusahaan" value="{{ $mitra->perusahaan }}" required>
                         </div>
                     </div>
                     <div class="modal-footer">

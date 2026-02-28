@@ -59,7 +59,7 @@
                                             </td>
                                             <td class="align-middle">
                                                 <!-- Hapus Button -->
-                                                <form action="{{ route('update.status') }}" method="POST">
+                                                <form action="{{ route('seller.status.update') }}" method="POST">
                                                     @csrf
                                                     <input type="hidden" name="id" value="{{ $pedagang->id }}">
                                                     <label class="switch">

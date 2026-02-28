@@ -54,7 +54,7 @@
                                     <p class="mb-0">Enter your email and password to sign in</p>
                                 </div>
                                 <div class="card-body">
-                                    <form action="{{ route('loginakun') }}" method="POST"> @csrf
+                                    <form action="{{ route('login') }}" method="POST"> @csrf
                                         <div class="mb-3">
                                             <input type="email" name="email" class="form-control form-control-lg"
                                                 placeholder="Email" aria-label="Email" required>
@@ -81,7 +81,7 @@
                                     </form>
                                 </div>
                                 {{-- <div class="card-footer text-center pt-0 px-lg-2 px-1">
-                                    <a href="{{ route('Forgot') }}"
+                                    <a href="{{ route('forgot.show') }}"
                                         class="text-primary text-gradient font-weight-bold">Forgot
                                         Password</a>
                                 </div> --}}

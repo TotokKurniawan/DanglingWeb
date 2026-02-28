@@ -6,7 +6,7 @@
                 <div class="card mb-4">
                     <div class="card-header pb-0 d-flex justify-content-between align-items-center">
                         <h6>Data Operator</h6>
-                        <a href="{{ route('Tambahadmin') }}" class="btn btn-primary btn-sm" data-toggle="tooltip"
+                        <a href="{{ route('admin.operators.create') }}" class="btn btn-primary btn-sm" data-toggle="tooltip"
                             data-original-title="Tambah data">
                             <i class="fas fa-plus"></i> Tambah
                         </a>
@@ -66,7 +66,7 @@
                                                 </a>
 
                                                 <form id="delete-form-{{ $user->id }}"
-                                                    action="{{ route('user.destroy', $user->id) }}" method="POST"
+                                                    action="{{ route('admin.users.destroy', $user->id) }}" method="POST"
                                                     style="display: none;">
                                                     @csrf
                                                     @method('DELETE')

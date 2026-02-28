@@ -1,42 +1,70 @@
 <?php
 
-use App\Http\Controllers\ForgotPasswordController;
-use GuzzleHttp\Middleware;
-use GuzzleHttp\Psr7\Uri;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\ComplaintController as ApiComplaintController;
+use App\Http\Controllers\Api\LocationController;
+use App\Http\Controllers\Api\OrderController;
+use App\Http\Controllers\Api\OrderHistoryController;
+use App\Http\Controllers\Api\OrderStatusController;
+use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\SellerController;
+use App\Http\Controllers\Api\SellerProductController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\apiController;
 
 /*
 |--------------------------------------------------------------------------
 | API Routes
 |--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "api" middleware group. Make something great!
-|
+| Base URL: /api
+| Auth: Bearer token (Laravel Passport). Send header: Authorization: Bearer {token}
 */
 
-// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-//     return $request->user();
-// });
 Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+    return response()->json([
+        'success' => true,
+        'data' => $request->user(),
+    ]);
 });
 
-Route::post('/sign_up', [apiController::class, 'sign_up']);
-Route::post('/logout', [apiController::class, 'logout']);
-Route::match(['get', 'post'], '/login', [apiController::class, 'login']);
-Route::post('/forgot_password', [apiController::class, 'forgot_password']);
-Route::post('/reset_password', [apiController::class, 'reset_password']);
-Route::middleware('auth:api')->post('/upgradeToSeller', [apiController::class, 'upgradeToSeller']);
-Route::middleware('auth:api')->get('/getStoreStatus', [apiController::class, 'getStoreStatus']);
-Route::middleware('auth:api')->post('/updateStatus', [apiController::class, 'updateStatus']);
-Route::middleware('auth:api')->get('/orderHistory', [apiController::class, 'orderHistory']);
-Route::middleware('auth:api')->get('/pesananMasuk', [apiController::class, 'pesananMasuk']);
-Route::middleware('auth:api')->match(['get', 'post'],'/tambahProduk', [apiController::class, 'tambahProduk']);
-Route::middleware('auth:api')->get('/tampilSeluruhPedagang', [apiController::class, 'tampilSeluruhPedagang']);
-Route::middleware('auth:api')->get('/tampilPedagangBerdasarkanID', [apiController::class, 'tampilPedagangBerdasarkanID']);
-Route::middleware('auth:api')->get('/updateLocation', [apiController::class, 'updateLocation']);
-// Route::get('getPedagangByUserId/{id}', [apiController::class, 'getPedagangByUserId']);
+// Auth (public) — rate limited
+Route::middleware('throttle:10,1')->group(function () {
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/sign_up', [AuthController::class, 'register']); // deprecated: use /register
+    Route::post('/login', [AuthController::class, 'login']);
+});
+
+// Auth required
+Route::middleware('auth:api')->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout']);
+
+    Route::post('/upgrade-to-seller', [SellerController::class, 'upgradeToSeller']);
+    Route::get('/store-status', [SellerController::class, 'getStoreStatus']);
+    Route::post('/store-status', [SellerController::class, 'updateStoreStatus']);
+
+    Route::get('/order-history', [OrderHistoryController::class, 'getOrderHistory']);
+    Route::post('/orders', [OrderController::class, 'createOrder']);
+
+    Route::get('/products', [ProductController::class, 'index']);
+    Route::post('/products', [ProductController::class, 'store']);
+    Route::put('/products/{id}', [ProductController::class, 'update']);
+    Route::delete('/products/{id}', [ProductController::class, 'destroy']);
+
+    Route::get('/sellers', [SellerProductController::class, 'getAllSellers']);
+    Route::get('/sellers/{id}', [SellerProductController::class, 'getSellerById']);
+
+    Route::get('/orders/pending', [OrderStatusController::class, 'getPendingOrders']);
+    Route::put('/orders/{id}/accept', [OrderStatusController::class, 'acceptOrder']);
+    Route::put('/orders/{id}/reject', [OrderStatusController::class, 'rejectOrder']);
+    Route::put('/orders/{id}/complete', [OrderStatusController::class, 'completeOrder']);
+    Route::put('/orders/{id}/cancel', [OrderStatusController::class, 'cancelOrder']);
+    Route::put('/orders/{id}/cancel-by-buyer', [OrderStatusController::class, 'cancelByBuyer']);
+
+    Route::put('/profile/buyer/{id}', [ProfileController::class, 'updateBuyerProfile']);
+    Route::put('/profile/seller/{id}', [ProfileController::class, 'updateSellerProfile']);
+
+    Route::put('/sellers/{id}/location', [LocationController::class, 'updateLocation']);
+
+    Route::post('/complaints', [ApiComplaintController::class, 'store'])->middleware('throttle:10,1');
+});

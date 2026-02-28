@@ -20,8 +20,8 @@ return new class extends Migration
             $table->timestamps();
 
             // Menambahkan foreign key constraints
-            $table->foreign('id_pembeli')->references('id')->on('pembelis')->onDelete('cascade');
-            $table->foreign('id_pedagang')->references('id')->on('pedagangs')->onDelete('cascade');
+            $table->foreign('id_pembeli')->references('id')->on('pembelis')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('id_pedagang')->references('id')->on('pedagangs')->onDelete('cascade')->onUpdate('cascade');
         });
     }
 
@@ -31,11 +31,13 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('keluhans', function (Blueprint $table) {
-            // Menghapus foreign key constraints sebelum menghapus tabel
-            $table->dropForeign(['id_pembeli']);
-            $table->dropForeign(['id_pedagang']);
+            if (Schema::hasColumn('keluhans', 'id_pembeli')) {
+                $table->dropForeign(['id_pembeli']);
+            }
+            if (Schema::hasColumn('keluhans', 'id_pedagang')) {
+                $table->dropForeign(['id_pedagang']);
+            }
         });
-
         Schema::dropIfExists('keluhans');
     }
 };

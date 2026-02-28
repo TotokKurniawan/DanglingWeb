@@ -9,7 +9,7 @@
                         <h6>Tambah Mitra</h6>
                     </div>
                     <div class="card-body px-4 pt-4 pb-2">
-                        <form action="{{ route('tambahan') }}" method="POST">
+                        <form action="{{ route('partners.store') }}" method="POST">
                             @csrf <!-- Tambahkan CSRF protection jika belum ada -->
 
                             <div class="row mb-2">

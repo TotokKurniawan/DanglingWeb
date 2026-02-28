@@ -19,7 +19,7 @@
                         <h6>Tambah Operator</h6>
                     </div>
                     <div class="card-body px-4 pt-4 pb-2">
-                        <form action="{{ route('operator.store') }}" method="POST" enctype="multipart/form-data">
+                        <form action="{{ route('admin.operators.store') }}" method="POST" enctype="multipart/form-data">
                             @csrf <!-- Tambahkan CSRF protection jika belum ada -->
 
                             <div class="form-group mb-3">

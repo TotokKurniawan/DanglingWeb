@@ -19,7 +19,7 @@ return new class extends Migration
             // $table->binary('foto');
             $table->string('foto');
             $table->decimal('latitude')->nullable();
-            $table->decimal('longtitude')->nullable();
+            $table->decimal('longitude')->nullable();
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();

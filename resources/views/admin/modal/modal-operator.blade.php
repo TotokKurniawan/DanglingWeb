@@ -16,7 +16,7 @@
                 <h5 class="modal-title" id="editOperatorModalLabel-{{ $user->id }}">Edit Mitra</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="edit-mitra-form-{{ $user->id }}" action="{{ route('operator.update', $user->id) }}"
+            <form id="edit-mitra-form-{{ $user->id }}" action="{{ route('admin.operators.update', $user->id) }}"
                 method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')

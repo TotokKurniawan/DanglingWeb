@@ -14,11 +14,11 @@ class User extends Authenticatable
     protected $table = 'users';
 
     protected $fillable = [
-        // 'nama',
+        'nama',
         'email',
         'password',
         'role',
-        'foto', 
+        'foto',
     ];
 
     protected $hidden = [
@@ -26,13 +26,14 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    // Relasi dengan Pedagang
-    public function pedagang()
+    // Relations
+    public function seller()
     {
-        return $this->hasOne(Pedagang::class, 'user_id');
+        return $this->hasOne(Seller::class, 'user_id');
     }
-    public function pembeli()
+
+    public function buyer()
     {
-        return $this->hasOne(Pembeli::class, 'user_id');
+        return $this->hasOne(Buyer::class, 'user_id');
     }
 }

@@ -12,7 +12,7 @@
                         </div>
                     </div>
                     <div class="card-body">
-                        <form id="edit-profile-form" action="{{ route('profile.updateoperator', $user->id) }}"
+                        <form id="edit-profile-form" action="{{ route('operator.profile.update', $user->id) }}"
                             method="POST" enctype="multipart/form-data">
                             @csrf <!-- Laravel CSRF token -->
                             @method('PUT') <!-- Menggunakan metode PUT untuk update -->

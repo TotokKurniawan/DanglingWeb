@@ -1,9 +1,80 @@
+# DanglingWeb
+
+Aplikasi marketplace berbasis Laravel 10: pembeli (buyer) dan pedagang (seller) terhubung via **REST API** (untuk mobile/app), plus **panel web** untuk admin dan operator.
+
+- **Stack:** PHP 8.1+, Laravel 10, Laravel Passport (API token).
+- **Web:** Landing, login admin/operator, dashboard, kelola pedagang/keluhan/mitra.
+- **API:** Auth, upgrade ke seller, produk, order, riwayat order, status order, profil, lokasi seller.
+
+## Setup
+
+```bash
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan passport:install
+php artisan storage:link
+php artisan migrate
+```
+
+Jalankan server: `php artisan serve`. Web: `http://localhost:8000`, API: `http://localhost:8000/api`.
+
+---
+
+## API Documentation
+
+**Base URL:** `/api`  
+**Auth:** Bearer token (Laravel Passport). Header: `Authorization: Bearer {token}`  
+**Response format:** JSON, snake_case. Success: `{ "success": true, "message": "...", "data": ... }`. Error: `{ "success": false, "message": "...", "errors": ... }` (errors hanya untuk validasi).
+
+### Public (no token)
+
+| Method | Endpoint | Deskripsi |
+|--------|----------|-----------|
+| POST | `/api/register` | Daftar (email, password). Role default: pembeli. |
+| POST | `/api/sign_up` | Alias `/register` (deprecated). |
+| POST | `/api/login` | Login (email, password). Return user + token. |
+
+Rate limit auth: 10 request/menit.
+
+### Perlu token (auth:api)
+
+| Method | Endpoint | Deskripsi |
+|--------|----------|-----------|
+| GET | `/api/user` | Data user saat ini. |
+| POST | `/api/logout` | Revoke token saat ini. |
+| POST | `/api/upgrade-to-seller` | Daftar jadi seller (nama_toko/namaToko, telfon, alamat, foto opsional). |
+| GET | `/api/store-status` | Cek status toko (is_online). |
+| POST | `/api/store-status` | Update status toko (body: status = online \| offline). |
+| GET | `/api/order-history` | Riwayat order (buyer/seller sesuai role). Response include order_items + product. |
+| POST | `/api/orders` | Buat order. Body: bentuk_pembayaran, id_pembeli, id_pedagang, **items** (array: [{ product_id, qty }]). Semua produk harus dari seller yang sama. |
+| GET | `/api/products` | Daftar produk seller yang login. |
+| POST | `/api/products` | Tambah produk (nama_produk, harga_produk, kategori_produk, foto). |
+| PUT | `/api/products/{id}` | Update produk (nama_produk, harga_produk, kategori_produk, foto opsional). Hanya pemilik. |
+| DELETE | `/api/products/{id}` | Hapus produk. Hanya pemilik. |
+| GET | `/api/sellers` | Daftar seller online + produk (untuk pembeli). |
+| GET | `/api/sellers/{id}` | Detail seller + produk. |
+| GET | `/api/orders/pending` | Order pending milik seller (include order_items). |
+| PUT | `/api/orders/{id}/accept` | Terima order (hanya status Menunggu). |
+| PUT | `/api/orders/{id}/reject` | Tolak order (body: alasan_tolak, hanya status Menunggu). |
+| PUT | `/api/orders/{id}/complete` | Selesaikan order (hanya status Diterima). |
+| PUT | `/api/orders/{id}/cancel` | Batalkan order oleh seller (hanya status Menunggu/Diterima). |
+| PUT | `/api/orders/{id}/cancel-by-buyer` | Batalkan order oleh pembeli (hanya status Menunggu). |
+| PUT | `/api/profile/buyer/{id}` | Update profil pembeli (nama, telfon, alamat, foto). |
+| PUT | `/api/profile/seller/{id}` | Update profil seller (nama_toko/namaToko/nama, telfon, alamat, foto). |
+| PUT | `/api/sellers/{id}/location` | Update koordinat seller (latitude, longitude). |
+| POST | `/api/complaints` | Submit keluhan. Body: deskripsi, rating (1–5), id_pedagang opsional, validate_order (bool) opsional. Jika pembeli + validate_order=true, harus pernah order dengan seller. Rate limit 10/menit. |
+
+Upload foto: simpan di `storage/app/public`. URL publik: `url('storage/...')`. Jalankan `php artisan storage:link` sekali.
+
+---
+
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
 <p align="center">
 <a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://packagist.org/packages/laravel/framework" alt="Total Downloads"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://packagist.org/packages/laravel/framework" alt="Latest Version"></a>
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('mitras', function (Blueprint $table) {
             $table->id();
             $table->string('nama');
-            $table->string('Perusahaan');
+            $table->string('perusahaan');
             $table->timestamps();
         });
     }

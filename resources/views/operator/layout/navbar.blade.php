@@ -7,29 +7,29 @@
                     <a class="opacity-5 text-white" href="javascript:;">Pages</a>
                 </li>
                 <!-- Breadcrumb untuk halaman aktif -->
-                <li class="breadcrumb-item text-sm text-white {{ Route::is('DashboardOperator') ? 'active' : '' }}"
+                <li class="breadcrumb-item text-sm text-white {{ Route::is('operator.dashboard') ? 'active' : '' }}"
                     aria-current="page">
-                    {{ Route::is('DashboardOperator')
-                        ? 'Dashboard Operator'
-                        : (Route::is('PedagangOperator')
-                            ? 'Pedagang Operator'
-                            : (Route::is('ProfileOperator')
-                                ? 'Profile Operator'
-                                : (Route::is('KeluhanOperator')
-                                    ? 'Keluhan Operator'
+                    {{ Route::is('operator.dashboard')
+                        ? 'Dashboard'
+                        : (Route::is('operator.sellers.index')
+                            ? 'Sellers'
+                            : (Route::is('operator.profile.show')
+                                ? 'Profile'
+                                : (Route::is('operator.complaints.index')
+                                    ? 'Complaints'
                                     : ''))) }}
                 </li>
             </ol>
             <!-- Judul untuk halaman aktif -->
             <h6 class="font-weight-bolder text-white mb-0">
-                {{ Route::is('DashboardOperator')
-                    ? 'Dashboard Operator'
-                    : (Route::is('PedagangOperator')
-                        ? 'Pedagang Operator'
-                        : (Route::is('ProfileOperator')
-                            ? 'Profile Operator'
-                            : (Route::is('KeluhanOperator')
-                                ? 'Keluhan Operator'
+                {{ Route::is('operator.dashboard')
+                    ? 'Dashboard'
+                    : (Route::is('operator.sellers.index')
+                        ? 'Sellers'
+                        : (Route::is('operator.profile.show')
+                            ? 'Profile'
+                            : (Route::is('operator.complaints.index')
+                                ? 'Complaints'
                                 : ''))) }}
             </h6>
         </nav>
@@ -43,7 +43,7 @@
             <ul class="navbar-nav justify-content-end">
                 <!-- Menu Profile -->
                 <li class="nav-item d-flex align-items-center">
-                    <a href="{{ route('profileOperator') }}" class="nav-link text-white font-weight-bold px-2">
+                    <a href="{{ route('operator.profile.show') }}" class="nav-link text-white font-weight-bold px-2">
                         <i class="fa fa-user me-1"></i> <!-- Ikon Profile -->
                         <span class="d-sm-inline d-none">Profile</span>
                     </a>
