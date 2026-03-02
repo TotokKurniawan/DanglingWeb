@@ -9,13 +9,13 @@ class Buyer extends Model
 {
     use HasFactory;
 
-    protected $table = 'pembelis';
+    protected $table = 'buyers';
 
     protected $fillable = [
-        'nama',
-        'telfon',
-        'alamat',
-        'foto',
+        'name',
+        'phone',
+        'address',
+        'photo_path',
         'latitude',
         'longitude',
         'user_id',

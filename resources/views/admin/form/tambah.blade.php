@@ -16,8 +16,8 @@
                                 <!-- Nama field -->
                                 <div class="col-md-12"> <!-- Change col-md-6 to col-md-12 to span the full row -->
                                     <div class="form-group">
-                                        <label for="nama" class="form-label">Nama</label>
-                                        <input type="text" class="form-control" id="nama" name="nama"
+                                        <label for="name" class="form-label">Nama</label>
+                                        <input type="text" class="form-control" id="name" name="name"
                                             placeholder="Masukkan nama" required>
                                     </div>
                                 </div>
@@ -38,8 +38,8 @@
                                 <!-- Perusahaan field -->
                                 <div class="col-md-12">
                                     <div class="form-group">
-                                        <label for="perusahaan" class="form-label">Perusahaan</label>
-                                        <input type="text" class="form-control" id="perusahaan" name="perusahaan"
+                                        <label for="company" class="form-label">Perusahaan</label>
+                                        <input type="text" class="form-control" id="company" name="company"
                                             placeholder="Masukkan perusahaan" required>
                                     </div>
                                 </div>

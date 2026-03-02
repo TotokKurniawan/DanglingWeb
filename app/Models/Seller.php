@@ -9,13 +9,13 @@ class Seller extends Model
 {
     use HasFactory;
 
-    protected $table = 'pedagangs';
+    protected $table = 'sellers';
 
     protected $fillable = [
-        'namaToko',
-        'telfon',
-        'alamat',
-        'foto',
+        'store_name',
+        'phone',
+        'address',
+        'photo_path',
         'status',
         'latitude',
         'longitude',
@@ -29,6 +29,6 @@ class Seller extends Model
 
     public function products()
     {
-        return $this->hasMany(Product::class, 'id_pedagang');
+        return $this->hasMany(Product::class, 'seller_id');
     }
 }

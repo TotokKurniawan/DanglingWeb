@@ -5,20 +5,24 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Traits\ApiResponse;
 use App\Models\Seller;
+use App\Services\Api\SellerService;
 use Illuminate\Http\Request;
 
 class SellerController extends Controller
 {
     use ApiResponse;
 
+    public function __construct(
+        protected SellerService $sellerService,
+    ) {}
+
     public function upgradeToSeller(Request $request)
     {
         $request->validate([
-            'nama_toko' => 'required_without:namaToko|string|max:255',
-            'namaToko' => 'required_without:nama_toko|string|max:255',
-            'telfon' => 'required|string|max:20',
-            'alamat' => 'required|string',
-            'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'store_name' => 'required|string|max:255',
+            'phone' => 'required|string|max:20',
+            'address' => 'required|string',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         $authUser = $request->user();
@@ -30,26 +34,18 @@ class SellerController extends Controller
             return $this->error('Forbidden', 403);
         }
 
-        if ($authUser->seller) {
-            return $this->error('Already registered as a seller', 409);
-        }
-
-        $namaToko = $request->input('nama_toko') ?? $request->input('namaToko');
         $seller = new Seller();
-        $seller->namaToko = $namaToko;
-        $seller->telfon = $request->telfon;
-        $seller->alamat = $request->alamat;
-        $seller->status = 'online';
-        $seller->user_id = $authUser->id;
+        $photoPath = $request->hasFile('photo')
+            ? $request->file('photo')->store('sellers', 'public')
+            : null;
 
-        if ($request->hasFile('foto')) {
-            $seller->foto = $request->file('foto')->store('pedagang', 'public');
-        }
-        $seller->save();
-
-        if ($authUser->role !== 'pedagang') {
-            $authUser->role = 'pedagang';
-            $authUser->save();
+        try {
+            $seller = $this->sellerService->upgradeToSeller($authUser, $request->only(['store_name', 'phone', 'address']), $photoPath);
+        } catch (\RuntimeException $e) {
+            if ($e->getMessage() === 'Already registered as a seller') {
+                return $this->error($e->getMessage(), 409);
+            }
+            return $this->error($e->getMessage(), 422);
         }
 
         return $this->success(['seller_id' => $seller->id], 'Seller registered successfully', 201);
@@ -62,7 +58,7 @@ class SellerController extends Controller
             return $this->error('User not authenticated', 401);
         }
 
-        $isOnline = $user->seller && $user->seller->status === 'online';
+        $isOnline = $this->sellerService->getStoreStatus($user);
         return $this->success(['is_online' => $isOnline], 'Success', 200);
     }
 
@@ -81,14 +77,15 @@ class SellerController extends Controller
             return $this->error('Forbidden', 403);
         }
 
-        $seller = $authUser->seller;
-        if (!$seller) {
-            return $this->error('Store not found', 404);
+        try {
+            $status = $this->sellerService->updateStoreStatus($authUser, $request->status);
+        } catch (\RuntimeException $e) {
+            if ($e->getMessage() === 'Store not found') {
+                return $this->error($e->getMessage(), 404);
+            }
+            return $this->error($e->getMessage(), 422);
         }
 
-        $seller->status = $request->status;
-        $seller->save();
-
-        return $this->success(['status' => $seller->status], 'Store status updated', 200);
+        return $this->success(['status' => $status], 'Store status updated', 200);
     }
 }

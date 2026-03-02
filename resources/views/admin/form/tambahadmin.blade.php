@@ -23,8 +23,8 @@
                             @csrf <!-- Tambahkan CSRF protection jika belum ada -->
 
                             <div class="form-group mb-3">
-                                <label for="nama" class="form-label">Nama Lengkap</label>
-                                <input type="text" class="form-control" id="nama" name="nama"
+                                <label for="name" class="form-label">Nama Lengkap</label>
+                                <input type="text" class="form-control" id="name" name="name"
                                     placeholder="Masukkan nama lengkap" required>
                             </div>
 
@@ -51,8 +51,8 @@
                             </div>
 
                             <div class="form-group mb-3">
-                                <label for="foto" class="form-label">Foto</label>
-                                <input type="file" class="form-control" id="foto" name="foto" required>
+                                <label for="photo" class="form-label">Foto</label>
+                                <input type="file" class="form-control" id="photo" name="photo" required>
                                 <small class="form-text text-muted">Format file: jpg, png, maksimal 2MB.</small>
                             </div>
 

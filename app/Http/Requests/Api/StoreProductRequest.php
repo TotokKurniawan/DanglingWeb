@@ -15,10 +15,10 @@ class StoreProductRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nama_produk' => 'required|string|max:255',
-            'harga_produk' => 'required|numeric|min:0',
-            'kategori_produk' => 'required|string|max:100',
-            'foto' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'name' => 'required|string|max:255',
+            'price' => 'required|numeric|min:0',
+            'category' => 'required|string|max:100',
+            'photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
         ];
     }
 }

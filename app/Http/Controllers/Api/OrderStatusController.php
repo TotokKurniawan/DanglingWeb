@@ -3,14 +3,18 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Api\RejectOrderRequest;
 use App\Http\Traits\ApiResponse;
 use App\Models\Order;
+use App\Services\Api\OrderService;
 use Illuminate\Http\Request;
 
 class OrderStatusController extends Controller
 {
     use ApiResponse;
+
+    public function __construct(
+        protected OrderService $orderService,
+    ) {}
 
     public function getPendingOrders(Request $request)
     {
@@ -19,10 +23,7 @@ class OrderStatusController extends Controller
             return $this->error('Forbidden', 403);
         }
 
-        $orders = Order::with(['orderItems.product', 'buyer'])
-            ->where('id_pedagang', $authUser->seller->id)
-            ->where('status', Order::STATUS_PENDING)
-            ->get();
+        $orders = $this->orderService->getPendingForSeller($authUser);
 
         return $this->success(['orders' => $orders], 'Success', 200);
     }
@@ -35,42 +36,36 @@ class OrderStatusController extends Controller
         }
 
         $authUser = $request->user();
-        if (!$authUser || !$authUser->seller || (int) $order->id_pedagang !== (int) $authUser->seller->id) {
-            return $this->error('Forbidden', 403);
+        try {
+            $order = $this->orderService->accept($order, $authUser);
+        } catch (\RuntimeException $e) {
+            if ($e->getMessage() === 'Forbidden') {
+                return $this->error('Forbidden', 403);
+            }
+            return $this->error($e->getMessage(), 422);
         }
-
-        if (!$order->canBeAccepted()) {
-            return $this->error('Order hanya bisa diterima jika status Menunggu', 422);
-        }
-
-        $order->status = Order::STATUS_ACCEPTED;
-        $order->save();
         return $this->success(['order' => $order], 'Status updated successfully', 200);
     }
 
     public function rejectOrder(Request $request, $id)
     {
         $request->validate([
-            'alasan_tolak' => 'required|string|max:255',
+            'reason' => 'required|string|max:255',
         ]);
-
         $order = Order::with('orderItems.product')->find($id);
         if (!$order) {
             return $this->error('Order not found', 404);
         }
 
         $authUser = $request->user();
-        if (!$authUser || !$authUser->seller || (int) $order->id_pedagang !== (int) $authUser->seller->id) {
-            return $this->error('Forbidden', 403);
+        try {
+            $order = $this->orderService->reject($order, $authUser, $request->input('reason'));
+        } catch (\RuntimeException $e) {
+            if ($e->getMessage() === 'Forbidden') {
+                return $this->error('Forbidden', 403);
+            }
+            return $this->error($e->getMessage(), 422);
         }
-
-        if (!$order->canBeAccepted()) {
-            return $this->error('Order hanya bisa ditolak jika status Menunggu', 422);
-        }
-
-        $order->status = Order::STATUS_REJECTED;
-        $order->alasan_tolak = $request->validated()['alasan_tolak'];
-        $order->save();
         return $this->success(['order' => $order], 'Status updated successfully', 200);
     }
 
@@ -82,16 +77,14 @@ class OrderStatusController extends Controller
         }
 
         $authUser = $request->user();
-        if (!$authUser || !$authUser->seller || (int) $order->id_pedagang !== (int) $authUser->seller->id) {
-            return $this->error('Forbidden', 403);
+        try {
+            $order = $this->orderService->complete($order, $authUser);
+        } catch (\RuntimeException $e) {
+            if ($e->getMessage() === 'Forbidden') {
+                return $this->error('Forbidden', 403);
+            }
+            return $this->error($e->getMessage(), 422);
         }
-
-        if (!$order->isAccepted()) {
-            return $this->error('Order hanya bisa diselesaikan jika status Diterima', 422);
-        }
-
-        $order->status = Order::STATUS_COMPLETED;
-        $order->save();
         return $this->success(['order' => $order], 'Status updated successfully', 200);
     }
 
@@ -103,16 +96,14 @@ class OrderStatusController extends Controller
         }
 
         $authUser = $request->user();
-        if (!$authUser || !$authUser->seller || (int) $order->id_pedagang !== (int) $authUser->seller->id) {
-            return $this->error('Forbidden', 403);
+        try {
+            $order = $this->orderService->cancelBySeller($order, $authUser);
+        } catch (\RuntimeException $e) {
+            if ($e->getMessage() === 'Forbidden') {
+                return $this->error('Forbidden', 403);
+            }
+            return $this->error($e->getMessage(), 422);
         }
-
-        if (!$order->canBeCancelledBySeller()) {
-            return $this->error('Order hanya bisa dibatalkan seller jika status Menunggu atau Diterima', 422);
-        }
-
-        $order->status = Order::STATUS_CANCELLED;
-        $order->save();
         return $this->success(['order' => $order], 'Status updated successfully', 200);
     }
 
@@ -127,16 +118,14 @@ class OrderStatusController extends Controller
         }
 
         $authUser = $request->user();
-        if (!$authUser || !$authUser->buyer || (int) $order->id_pembeli !== (int) $authUser->buyer->id) {
-            return $this->error('Forbidden', 403);
+        try {
+            $order = $this->orderService->cancelByBuyer($order, $authUser);
+        } catch (\RuntimeException $e) {
+            if ($e->getMessage() === 'Forbidden') {
+                return $this->error('Forbidden', 403);
+            }
+            return $this->error($e->getMessage(), 422);
         }
-
-        if (!$order->canBeCancelledByBuyer()) {
-            return $this->error('Order hanya bisa dibatalkan pembeli jika status Menunggu', 422);
-        }
-
-        $order->status = Order::STATUS_CANCELLED;
-        $order->save();
         return $this->success(['order' => $order], 'Order dibatalkan', 200);
     }
 }

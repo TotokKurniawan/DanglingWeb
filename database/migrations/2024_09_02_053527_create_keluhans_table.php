@@ -11,17 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('keluhans', function (Blueprint $table) {
+        Schema::create('complaints', function (Blueprint $table) {
             $table->id();
-            $table->string('deskripsi');
+            $table->string('description');
             $table->integer('rating');
-            $table->unsignedBigInteger('id_pembeli'); // Ganti spasi dengan underscore
-            $table->unsignedBigInteger('id_pedagang'); // Ganti spasi dengan underscore
+            $table->unsignedBigInteger('buyer_id')->nullable();
+            $table->unsignedBigInteger('seller_id')->nullable();
             $table->timestamps();
 
-            // Menambahkan foreign key constraints
-            $table->foreign('id_pembeli')->references('id')->on('pembelis')->onDelete('cascade')->onUpdate('cascade');
-            $table->foreign('id_pedagang')->references('id')->on('pedagangs')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('buyer_id')->references('id')->on('buyers')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('seller_id')->references('id')->on('sellers')->onDelete('cascade')->onUpdate('cascade');
         });
     }
 
@@ -30,14 +29,14 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('keluhans', function (Blueprint $table) {
-            if (Schema::hasColumn('keluhans', 'id_pembeli')) {
-                $table->dropForeign(['id_pembeli']);
+        Schema::table('complaints', function (Blueprint $table) {
+            if (Schema::hasColumn('complaints', 'buyer_id')) {
+                $table->dropForeign(['buyer_id']);
             }
-            if (Schema::hasColumn('keluhans', 'id_pedagang')) {
-                $table->dropForeign(['id_pedagang']);
+            if (Schema::hasColumn('complaints', 'seller_id')) {
+                $table->dropForeign(['seller_id']);
             }
         });
-        Schema::dropIfExists('keluhans');
+        Schema::dropIfExists('complaints');
     }
 };

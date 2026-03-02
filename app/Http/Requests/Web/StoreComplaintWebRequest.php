@@ -14,10 +14,10 @@ class StoreComplaintWebRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'deskripsi' => 'required|string|max:2000',
+            'description' => 'required|string|max:2000',
             'rating' => 'required|integer|min:1|max:5',
-            'id_pembeli' => 'nullable|exists:pembelis,id',
-            'id_pedagang' => 'nullable|exists:pedagangs,id',
+            'buyer_id' => 'nullable|exists:buyers,id',
+            'seller_id' => 'nullable|exists:sellers,id',
         ];
     }
 }

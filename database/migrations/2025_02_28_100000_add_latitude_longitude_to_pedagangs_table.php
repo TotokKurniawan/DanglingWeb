@@ -8,20 +8,11 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('pedagangs', function (Blueprint $table) {
-            if (!Schema::hasColumn('pedagangs', 'latitude')) {
-                $table->decimal('latitude', 10, 8)->nullable()->after('status');
-            }
-            if (!Schema::hasColumn('pedagangs', 'longitude')) {
-                $table->decimal('longitude', 11, 8)->nullable()->after('latitude');
-            }
-        });
+        // Latitude/longitude already defined on sellers table in base migration.
     }
 
     public function down(): void
     {
-        Schema::table('pedagangs', function (Blueprint $table) {
-            $table->dropColumn(['latitude', 'longitude']);
-        });
+        // No-op.
     }
 };

@@ -12,15 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('messages', function (Blueprint $table) {
-            $table->id(); // Primary Key
-            $table->text('message'); // Isi pesan
-            $table->unsignedBigInteger('id_pembeli'); // Foreign Key ke tabel pembelis
-            $table->unsignedBigInteger('id_pedagang'); // Foreign Key ke tabel pedagangs
-            $table->timestamps(); // Kolom created_at dan updated_at
+            $table->id();
+            $table->text('message');
+            $table->unsignedBigInteger('buyer_id');
+            $table->unsignedBigInteger('seller_id');
+            $table->timestamps();
 
-            // Foreign keys
-            $table->foreign('id_pembeli')->references('id')->on('pembelis')->onDelete('cascade')->onUpdate('cascade');
-            $table->foreign('id_pedagang')->references('id')->on('pedagangs')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('buyer_id')->references('id')->on('buyers')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('seller_id')->references('id')->on('sellers')->onDelete('cascade')->onUpdate('cascade');
         });
     }
 
@@ -31,11 +30,11 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('messages', function (Blueprint $table) {
-            if (Schema::hasColumn('messages', 'id_pembeli')) {
-                $table->dropForeign(['id_pembeli']);
+            if (Schema::hasColumn('messages', 'buyer_id')) {
+                $table->dropForeign(['buyer_id']);
             }
-            if (Schema::hasColumn('messages', 'id_pedagang')) {
-                $table->dropForeign(['id_pedagang']);
+            if (Schema::hasColumn('messages', 'seller_id')) {
+                $table->dropForeign(['seller_id']);
             }
         });
         Schema::dropIfExists('messages');

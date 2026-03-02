@@ -11,15 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('pembelis', function (Blueprint $table) {
+        Schema::create('buyers', function (Blueprint $table) {
             $table->id();
-            $table->string('nama');
-            $table->char('telfon');
-            $table->string('alamat');
-            // $table->binary('foto');
-            $table->string('foto');
-            $table->decimal('latitude')->nullable();
-            $table->decimal('longitude')->nullable();
+            $table->string('name');
+            $table->string('phone');
+            $table->string('address');
+            $table->string('photo_path')->nullable();
+            $table->decimal('latitude', 10, 8)->nullable();
+            $table->decimal('longitude', 11, 8)->nullable();
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
@@ -31,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('pembelis');
+        Schema::dropIfExists('buyers');
     }
 };

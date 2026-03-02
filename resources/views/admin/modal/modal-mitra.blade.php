@@ -15,14 +15,14 @@
                     <div class="modal-body">
                         <input type="hidden" class="form-control" name="id" value="{{ $mitra->id }}">
                         <div class="mb-1">
-                            <label for="nama" class="form-label">Nama</label>
-                            <input type="text" class="form-control" id="edit-nama-{{ $mitra->id }}" name="nama"
-                                value="{{ $mitra->nama }}" required>
+                            <label for="name" class="form-label">Nama</label>
+                            <input type="text" class="form-control" id="edit-name-{{ $mitra->id }}" name="name"
+                                value="{{ $mitra->name }}" required>
                         </div>
                         <div class="mb-6">
-                            <label for="perusahaan" class="form-label">Perusahaan</label>
-                            <input type="text" class="form-control" id="edit-perusahaan-{{ $mitra->id }}"
-                                name="perusahaan" value="{{ $mitra->perusahaan }}" required>
+                            <label for="company" class="form-label">Perusahaan</label>
+                            <input type="text" class="form-control" id="edit-company-{{ $mitra->id }}"
+                                name="company" value="{{ $mitra->company }}" required>
                         </div>
                     </div>
                     <div class="modal-footer">

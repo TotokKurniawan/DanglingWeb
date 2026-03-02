@@ -2,17 +2,21 @@
 
 namespace App\Http\Controllers\Web;
 
-use App\Http\Requests\Web\MitraRequest;
-use App\Http\Requests\Web\UpdateMitraRequest;
+use App\Http\Requests\Web\StorePartnerRequest;
+use App\Http\Requests\Web\UpdatePartnerRequest;
 use App\Models\Partner;
-use Illuminate\Http\Request;
+use App\Services\Web\PartnerService;
 
 class PartnerController extends Controller
 {
+    public function __construct(
+        protected PartnerService $partnerService,
+    ) {}
+
     public function index()
     {
-        $mitras = Partner::paginate(10);
-        return view('admin.mitra', compact('mitras'));
+        $partners = $this->partnerService->paginate(10);
+        return view('admin.mitra', ['mitras' => $partners]);
     }
 
     public function createForm()
@@ -20,24 +24,25 @@ class PartnerController extends Controller
         return view('admin.form.tambah');
     }
 
-    public function store(MitraRequest $request)
+    public function store(StorePartnerRequest $request)
     {
-        Partner::create($request->validated());
+        $this->partnerService->create($request->validated());
         session()->flash('success', 'Data saved successfully.');
         return redirect()->route('partners.index')->with('success', 'Partner added successfully.');
     }
 
-    public function update(UpdateMitraRequest $request, $id)
+    public function update(UpdatePartnerRequest $request, $id)
     {
         $partner = Partner::findOrFail($id);
-        $partner->update($request->validated());
+        $this->partnerService->update($partner, $request->validated());
         session()->flash('success', 'Data updated successfully.');
         return redirect()->route('partners.index')->with('success', 'Partner updated successfully.');
     }
 
     public function destroy($id)
     {
-        Partner::findOrFail($id)->delete();
+        $partner = Partner::findOrFail($id);
+        $this->partnerService->delete($partner);
         return redirect()->back()->with('success', 'Partner deleted successfully.');
     }
 }

@@ -6,12 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Http\Traits\ApiResponse;
 use App\Models\Buyer;
 use App\Models\Seller;
+use App\Services\Api\ProfileService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
     use ApiResponse;
+
+    public function __construct(
+        protected ProfileService $profileService,
+    ) {}
 
     public function updateBuyerProfile(Request $request, $id)
     {
@@ -26,26 +30,20 @@ class ProfileController extends Controller
         }
 
         $request->validate([
-            'nama' => 'required|string|max:255',
-            'telfon' => 'required|string|max:15',
-            'alamat' => 'required|string',
-            'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'name' => 'required|string|max:255',
+            'phone' => 'required|string|max:15',
+            'address' => 'required|string',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
-        if ($request->hasFile('foto')) {
-            if ($buyer->foto) {
-                Storage::disk('public')->delete($buyer->foto);
-            }
-            $buyer->foto = $request->file('foto')->store('foto_pembelis', 'public');
-        }
+        $photoPath = $request->hasFile('photo')
+            ? $request->file('photo')->store('buyers', 'public')
+            : null;
 
-        $buyer->nama = $request->nama;
-        $buyer->telfon = $request->telfon;
-        $buyer->alamat = $request->alamat;
-        $buyer->save();
+        $buyer = $this->profileService->updateBuyerProfile($authUser, $buyer, $request->only(['name','phone','address']), $photoPath);
 
         $data = $buyer->toArray();
-        $data['foto_url'] = $buyer->foto ? url('storage/' . $buyer->foto) : null;
+        $data['photo_url'] = $buyer->photo_path ? url('storage/' . $buyer->photo_path) : null;
         return $this->success(['buyer' => $data], 'Buyer profile updated successfully', 200);
     }
 
@@ -61,33 +59,21 @@ class ProfileController extends Controller
             return $this->error('Forbidden', 403);
         }
 
-        // Terima nama_toko, namaToko (API), atau nama (backward compat) → simpan ke namaToko
         $request->validate([
-            'nama' => 'sometimes|string|max:255',
-            'nama_toko' => 'sometimes|string|max:255',
-            'namaToko' => 'sometimes|string|max:255',
-            'telfon' => 'required|string|max:15',
-            'alamat' => 'required|string',
-            'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'store_name' => 'sometimes|string|max:255',
+            'phone' => 'required|string|max:15',
+            'address' => 'required|string',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
-        if ($request->hasFile('foto')) {
-            if ($seller->foto) {
-                Storage::disk('public')->delete($seller->foto);
-            }
-            $seller->foto = $request->file('foto')->store('foto_pedagangs', 'public');
-        }
+        $photoPath = $request->hasFile('photo')
+            ? $request->file('photo')->store('sellers', 'public')
+            : null;
 
-        $namaToko = $request->input('nama_toko') ?? $request->input('namaToko') ?? $request->input('nama');
-        if ($namaToko !== null) {
-            $seller->namaToko = $namaToko;
-        }
-        $seller->telfon = $request->telfon;
-        $seller->alamat = $request->alamat;
-        $seller->save();
+        $seller = $this->profileService->updateSellerProfile($authUser, $seller, $request->only(['store_name','phone','address']), $photoPath);
 
         $data = $seller->toArray();
-        $data['foto_url'] = $seller->foto ? url('storage/' . $seller->foto) : null;
+        $data['photo_url'] = $seller->photo_path ? url('storage/' . $seller->photo_path) : null;
         return $this->success(['seller' => $data], 'Seller profile updated successfully', 200);
     }
 }

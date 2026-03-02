@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Web;
 
 use App\Models\Buyer;
 use App\Models\Seller;
@@ -117,3 +117,4 @@ class DashboardStatsService
         ];
     }
 }
+

@@ -4,7 +4,7 @@ namespace App\Http\Requests\Web;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class MitraRequest extends FormRequest
+class UpdatePartnerRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -14,8 +14,9 @@ class MitraRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nama' => 'required|string|max:255',
-            'perusahaan' => 'required|string|max:255',
+            'name' => 'required|string|max:255',
+            'company' => 'required|string|max:255',
         ];
     }
 }
+

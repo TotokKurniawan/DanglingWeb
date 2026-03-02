@@ -30,8 +30,9 @@
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group">
-                                        <label for="first-name" class="form-control-label">Full name</label>
-                                        <input id="nama" name="nama" class="form-control" type="text">
+                                        <label for="name" class="form-control-label">Full name</label>
+                                        <input id="name" name="name" class="form-control" type="text"
+                                            value="{{ old('name', $user->name) }}">
                                     </div>
                                 </div>
                                 <div class="col-md-12">
@@ -50,8 +51,8 @@
                                 </div>
                                 <div class="col-md-12">
                                     <div class="form-group">
-                                        <label for="foto" class="form-control-label">Foto</label>
-                                        <input id="foto" name="foto" class="form-control" type="file">
+                                        <label for="photo" class="form-control-label">Foto</label>
+                                        <input id="photo" name="photo" class="form-control" type="file">
                                         <small class="form-text text-muted">Format file: jpg, png, maksimal 2MB.</small>
                                     </div>
                                 </div>
@@ -72,7 +73,7 @@
                         <div class="col-4 col-lg-4 order-lg-2">
                             <div class="mt-n4 mt-lg-n6 mb-4 mb-lg-0 text-center">
                                 <a href="javascript:;">
-                                    <img src="{{ asset('storage/foto_mitra/' . basename($user->foto)) }}"
+                                    <img src="{{ $user->photo_path ? Storage::url($user->photo_path) : asset('admin_assets/img/default-avatar.png') }}"
                                         class="rounded-circle img-fluid border border-9 border-white" alt="User Foto">
                                 </a>
                             </div>
@@ -81,7 +82,7 @@
 
                     <div class="card-body pt-0">
                         <div class="text-center mt-4">
-                            <h5>{{ $user->nama }}<span class="font-weight-light"></span></h5> <!-- Menampilkan nama -->
+                            <h5>{{ $user->name }}<span class="font-weight-light"></span></h5> <!-- Menampilkan nama -->
                             <div class="h6 font-weight-300">
                                 <i class="ni location_pin mr-2"></i>{{ $user->email }} <!-- Menampilkan email -->
                             </div>

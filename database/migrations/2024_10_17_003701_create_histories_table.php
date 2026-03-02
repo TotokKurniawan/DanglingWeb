@@ -12,17 +12,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('histories', function (Blueprint $table) {
+        Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->enum('status', ['Menunggu', 'Diterima', 'Ditolak', 'Selesai', 'Dibatalkan']);
-            $table->string('bentuk_pembayaran');
-            $table->string('alasan_tolak')->nullable();
-            $table->unsignedBigInteger('id_pembeli');
-            $table->unsignedBigInteger('id_pedagang');
+            $table->enum('status', ['pending', 'accepted', 'rejected', 'completed', 'cancelled']);
+            $table->string('payment_method');
+            $table->string('rejection_reason')->nullable();
+            $table->unsignedBigInteger('buyer_id');
+            $table->unsignedBigInteger('seller_id');
             $table->timestamps();
 
-            $table->foreign('id_pembeli')->references('id')->on('pembelis')->onDelete('cascade')->onUpdate('cascade');
-            $table->foreign('id_pedagang')->references('id')->on('pedagangs')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('buyer_id')->references('id')->on('buyers')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('seller_id')->references('id')->on('sellers')->onDelete('cascade')->onUpdate('cascade');
         });
     }
 
@@ -31,14 +31,14 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('histories', function (Blueprint $table) {
-            if (Schema::hasColumn('histories', 'id_pembeli')) {
-                $table->dropForeign(['id_pembeli']);
+        Schema::table('orders', function (Blueprint $table) {
+            if (Schema::hasColumn('orders', 'buyer_id')) {
+                $table->dropForeign(['buyer_id']);
             }
-            if (Schema::hasColumn('histories', 'id_pedagang')) {
-                $table->dropForeign(['id_pedagang']);
+            if (Schema::hasColumn('orders', 'seller_id')) {
+                $table->dropForeign(['seller_id']);
             }
         });
-        Schema::dropIfExists('histories');
+        Schema::dropIfExists('orders');
     }
 };

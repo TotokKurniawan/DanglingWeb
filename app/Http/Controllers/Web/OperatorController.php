@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Web;
 use App\Models\Complaint;
 use App\Models\Seller;
 use App\Models\User;
-use App\Services\DashboardStatsService;
+use App\Services\Web\DashboardStatsService;
 use Illuminate\Http\Request;
 
 class OperatorController extends Controller

@@ -2,42 +2,44 @@
 
 namespace App\Http\Controllers\Web;
 
+use App\Http\Requests\Web\LoginRequest;
+use App\Services\Web\AuthWebService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 
 class LoginController extends Controller
 {
+    public function __construct(
+        protected AuthWebService $authWebService,
+    ) {}
+
     public function showLoginForm(Request $request)
     {
         if (Auth::check()) {
             $user = Auth::user();
-            return redirect()->route($user->role === 'admin' ? 'admin.dashboard' : 'operator.dashboard');
+            $route = $this->authWebService->dashboardRouteFor($user);
+            return redirect()->route($route);
         }
         return view('admin.login.Login');
     }
 
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
-
-        $user = \App\Models\User::where('email', $request->email)->first();
-
-        if ($user && Hash::check($request->password, $user->password)) {
-            if (!in_array($user->role, ['admin', 'operator'], true)) {
-                return back()->withErrors(['email' => 'This account cannot access the web panel.']);
-            }
-
-            Auth::login($user);
-            session(['user_email' => $user->email]);
-            session()->flash('success', 'Login successful. Welcome, ' . ($user->nama ?? $user->email));
-            return redirect()->route($user->role === 'admin' ? 'admin.dashboard' : 'operator.dashboard');
+        try {
+            $user = $this->authWebService->validateCredentials(
+                $request->input('email'),
+                $request->input('password'),
+            );
+        } catch (\RuntimeException $e) {
+            return back()->withErrors(['email' => $e->getMessage()]);
         }
 
-        return back()->withErrors(['email' => 'Invalid email or password']);
+        Auth::login($user);
+        session(['user_email' => $user->email]);
+        session()->flash('success', 'Login successful. Welcome, ' . ($user->name ?? $user->email));
+
+        $route = $this->authWebService->dashboardRouteFor($user);
+        return redirect()->route($route);
     }
 
     public function logout(Request $request)

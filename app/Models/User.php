@@ -6,19 +6,19 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable; 
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, HasApiTokens;
+    use HasFactory, Notifiable, HasApiTokens, HasRoles;
 
     protected $table = 'users';
 
     protected $fillable = [
-        'nama',
+        'name',
         'email',
         'password',
-        'role',
-        'foto',
+        'photo_path',
     ];
 
     protected $hidden = [
@@ -35,5 +35,19 @@ class User extends Authenticatable
     public function buyer()
     {
         return $this->hasOne(Buyer::class, 'user_id');
+    }
+
+    /**
+     * Determine default guard name for Spatie Permission.
+     * Use 'api' for API routes, otherwise 'web'.
+     */
+    protected function getDefaultGuardName(): string
+    {
+        $request = request();
+        if ($request && $request->is('api/*')) {
+            return 'api';
+        }
+
+        return 'web';
     }
 }

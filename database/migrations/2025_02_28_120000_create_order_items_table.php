@@ -16,12 +16,12 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('order_id');
             $table->unsignedBigInteger('product_id');
-            $table->unsignedInteger('qty')->default(1);
-            $table->decimal('harga_saat_order', 12, 0)->comment('Harga per unit saat order');
+            $table->unsignedInteger('quantity')->default(1);
+            $table->decimal('unit_price', 12, 0)->comment('Unit price at the time of order');
             $table->timestamps();
 
-            $table->foreign('order_id')->references('id')->on('histories')->onDelete('cascade');
-            $table->foreign('product_id')->references('id')->on('produks')->onDelete('cascade');
+            $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
+            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
         });
     }
 

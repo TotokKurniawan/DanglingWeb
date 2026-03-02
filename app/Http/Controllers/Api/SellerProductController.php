@@ -28,12 +28,12 @@ class SellerProductController extends Controller
                 foreach ($seller->products as $product) {
                     $items[] = [
                         'id' => $product->id,
-                        'nama_produk' => $product->nama_produk,
-                        'harga_produk' => $product->harga_produk,
-                        'kategori_produk' => $product->kategori_produk,
-                        'foto_produk' => $product->foto ? url('storage/' . $product->foto) : null,
-                        'id_pedagang' => $seller->id,
-                        'foto_pedagang' => $seller->foto ? url('storage/' . $seller->foto) : null,
+                        'name' => $product->name,
+                        'price' => $product->price,
+                        'category' => $product->category,
+                        'product_photo_url' => $product->photo_path ? url('storage/' . $product->photo_path) : null,
+                        'seller_id' => $seller->id,
+                        'seller_photo_url' => $seller->photo_path ? url('storage/' . $seller->photo_path) : null,
                     ];
                 }
             }
@@ -53,12 +53,12 @@ class SellerProductController extends Controller
         }
 
         $data = $seller->toArray();
-        if (isset($data['foto']) && $data['foto']) {
-            $data['foto_url'] = url('storage/' . $data['foto']);
+        if (isset($data['photo_path']) && $data['photo_path']) {
+            $data['photo_url'] = url('storage/' . $data['photo_path']);
         }
         foreach ($data['products'] ?? [] as $i => $p) {
-            if (!empty($p['foto'])) {
-                $data['products'][$i]['foto_url'] = url('storage/' . $p['foto']);
+            if (!empty($p['photo_path'])) {
+                $data['products'][$i]['photo_url'] = url('storage/' . $p['photo_path']);
             }
         }
 

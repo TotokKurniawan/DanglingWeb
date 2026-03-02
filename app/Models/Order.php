@@ -9,30 +9,30 @@ class Order extends Model
 {
     use HasFactory;
 
-    protected $table = 'histories';
+    protected $table = 'orders';
 
-    public const STATUS_PENDING = 'Menunggu';
-    public const STATUS_ACCEPTED = 'Diterima';
-    public const STATUS_REJECTED = 'Ditolak';
-    public const STATUS_COMPLETED = 'Selesai';
-    public const STATUS_CANCELLED = 'Dibatalkan';
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_ACCEPTED = 'accepted';
+    public const STATUS_REJECTED = 'rejected';
+    public const STATUS_COMPLETED = 'completed';
+    public const STATUS_CANCELLED = 'cancelled';
 
     protected $fillable = [
         'status',
-        'bentuk_pembayaran',
-        'alasan_tolak',
-        'id_pembeli',
-        'id_pedagang',
+        'payment_method',
+        'rejection_reason',
+        'buyer_id',
+        'seller_id',
     ];
 
     public function buyer()
     {
-        return $this->belongsTo(Buyer::class, 'id_pembeli');
+        return $this->belongsTo(Buyer::class, 'buyer_id');
     }
 
     public function seller()
     {
-        return $this->belongsTo(Seller::class, 'id_pedagang');
+        return $this->belongsTo(Seller::class, 'seller_id');
     }
 
     public function orderItems()

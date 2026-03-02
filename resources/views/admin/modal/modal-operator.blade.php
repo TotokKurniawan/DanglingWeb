@@ -28,9 +28,9 @@
                             value="{{ $user->email }}" placeholder="Masukkan email" required readonly>
                     </div>
                     <div class="mb-3">
-                        <label for="edit-nama-{{ $user->id }}" class="form-label">Nama Lengkap</label>
-                        <input type="text" class="form-control" id="edit-nama-{{ $user->id }}" name="nama"
-                            value="{{ $user->nama }}" placeholder="Masukkan nama lengkap" required>
+                        <label for="edit-name-{{ $user->id }}" class="form-label">Nama Lengkap</label>
+                        <input type="text" class="form-control" id="edit-name-{{ $user->id }}" name="name"
+                            value="{{ $user->name }}" placeholder="Masukkan nama lengkap" required>
                     </div>
 
                     <div class="mb-3">

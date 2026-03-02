@@ -17,16 +17,16 @@ class UpdateProductRequest extends FormRequest
             return false;
         }
         $product = \App\Models\Product::find($id);
-        return $product && (int) $product->id_pedagang === (int) $user->seller->id;
+        return $product && (int) $product->seller_id === (int) $user->seller->id;
     }
 
     public function rules(): array
     {
         return [
-            'nama_produk' => 'sometimes|string|max:255',
-            'harga_produk' => 'sometimes|numeric|min:0',
-            'kategori_produk' => 'sometimes|string|max:100',
-            'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'name' => 'sometimes|string|max:255',
+            'price' => 'sometimes|numeric|min:0',
+            'category' => 'sometimes|string|max:100',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ];
     }
 }

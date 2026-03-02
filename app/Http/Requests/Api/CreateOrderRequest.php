@@ -12,18 +12,18 @@ class CreateOrderRequest extends FormRequest
         if (!$user || !$user->buyer) {
             return false;
         }
-        return (int) $this->input('id_pembeli') === (int) $user->buyer->id;
+        return (int) $this->input('buyer_id') === (int) $user->buyer->id;
     }
 
     public function rules(): array
     {
         return [
-            'bentuk_pembayaran' => 'required|string|max:255',
-            'id_pembeli' => 'required|exists:pembelis,id',
-            'id_pedagang' => 'required|exists:pedagangs,id',
+            'payment_method' => 'required|string|max:255',
+            'buyer_id' => 'required|exists:buyers,id',
+            'seller_id' => 'required|exists:sellers,id',
             'items' => 'required|array|min:1',
-            'items.*.product_id' => 'required|exists:produks,id',
-            'items.*.qty' => 'required|integer|min:1',
+            'items.*.product_id' => 'required|exists:products,id',
+            'items.*.quantity' => 'required|integer|min:1',
         ];
     }
 

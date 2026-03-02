@@ -29,8 +29,9 @@ class AuthController extends Controller
         return $this->success([
             'user' => [
                 'id' => $user->id,
+                'name' => $user->name,
                 'email' => $user->email,
-                'role' => $user->role,
+                'roles' => $user->getRoleNames(),
             ],
             'token' => $token,
         ], 'Login successful', 200);
@@ -46,22 +47,25 @@ class AuthController extends Controller
         $user = User::create([
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => 'pembeli',
         ]);
 
         Buyer::create([
             'user_id' => $user->id,
-            'nama' => '',
-            'telfon' => '',
-            'alamat' => '',
-            'foto' => '',
+            'name' => '',
+            'phone' => '',
+            'address' => '',
+            'photo_path' => '',
         ]);
+
+        // Assign buyer role on api guard
+        $user->assignRole('buyer');
 
         return $this->success([
             'user' => [
                 'id' => $user->id,
+                'name' => $user->name,
                 'email' => $user->email,
-                'role' => $user->role,
+                'roles' => $user->getRoleNames(),
             ],
         ], 'Registration successful', 201);
     }

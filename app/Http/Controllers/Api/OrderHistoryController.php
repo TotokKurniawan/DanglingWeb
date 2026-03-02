@@ -4,12 +4,16 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Traits\ApiResponse;
-use App\Models\Order;
+use App\Services\Api\OrderService;
 use Illuminate\Http\Request;
 
 class OrderHistoryController extends Controller
 {
     use ApiResponse;
+
+    public function __construct(
+        protected OrderService $orderService,
+    ) {}
 
     public function getOrderHistory(Request $request)
     {
@@ -19,10 +23,7 @@ class OrderHistoryController extends Controller
         }
 
         if ($user->buyer) {
-            $orders = Order::with(['orderItems.product', 'seller', 'buyer'])
-                ->where('id_pembeli', $user->buyer->id)
-                ->orderByDesc('created_at')
-                ->get();
+            $orders = $this->orderService->getHistoryForBuyer($user);
             return $this->success([
                 'role' => 'pembeli',
                 'orders' => $this->formatOrdersForResponse($orders),
@@ -30,10 +31,7 @@ class OrderHistoryController extends Controller
         }
 
         if ($user->seller) {
-            $orders = Order::with(['orderItems.product', 'seller', 'buyer'])
-                ->where('id_pedagang', $user->seller->id)
-                ->orderByDesc('created_at')
-                ->get();
+            $orders = $this->orderService->getHistoryForSeller($user);
             return $this->success([
                 'role' => 'pedagang',
                 'orders' => $this->formatOrdersForResponse($orders),
@@ -51,8 +49,8 @@ class OrderHistoryController extends Controller
         return $orders->map(function ($order) {
             $arr = $order->toArray();
             foreach ($arr['order_items'] ?? [] as $i => $oi) {
-                if (!empty($oi['product']['foto'])) {
-                    $arr['order_items'][$i]['product']['foto_url'] = url('storage/' . $oi['product']['foto']);
+                if (!empty($oi['product']['photo_path'])) {
+                    $arr['order_items'][$i]['product']['photo_url'] = url('storage/' . $oi['product']['photo_path']);
                 }
             }
             return $arr;

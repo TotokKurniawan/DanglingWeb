@@ -4,11 +4,16 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Traits\ApiResponse;
+use App\Services\Api\SellerService;
 use Illuminate\Http\Request;
 
 class LocationController extends Controller
 {
     use ApiResponse;
+
+    public function __construct(
+        protected SellerService $sellerService,
+    ) {}
 
     public function updateLocation(Request $request, $id)
     {
@@ -26,10 +31,7 @@ class LocationController extends Controller
             'longitude' => 'required|numeric|between:-180,180',
         ]);
 
-        $seller = $authUser->seller;
-        $seller->latitude = $request->latitude;
-        $seller->longitude = $request->longitude;
-        $seller->save();
+        $this->sellerService->updateLocation($authUser, (float) $request->latitude, (float) $request->longitude);
 
         return $this->success(null, 'Seller location updated successfully', 200);
     }

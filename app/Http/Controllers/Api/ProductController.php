@@ -8,11 +8,15 @@ use App\Http\Requests\Api\UpdateProductRequest;
 use App\Http\Traits\ApiResponse;
 use App\Models\Product;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use App\Services\Api\ProductService;
 
 class ProductController extends Controller
 {
     use ApiResponse;
+
+    public function __construct(
+        protected ProductService $productService,
+    ) {}
 
     /**
      * GET /api/products — list products of the authenticated seller.
@@ -24,19 +28,17 @@ class ProductController extends Controller
             return $this->error('Forbidden', 403);
         }
 
-        $products = Product::where('id_pedagang', $user->seller->id)
-            ->orderByDesc('created_at')
-            ->get();
+        $products = $this->productService->listForSeller($user);
 
         $items = $products->map(function ($p) {
             return [
                 'id' => $p->id,
-                'nama_produk' => $p->nama_produk,
-                'harga_produk' => $p->harga_produk,
-                'kategori_produk' => $p->kategori_produk,
-                'foto' => $p->foto,
-                'foto_url' => $p->foto ? url('storage/' . $p->foto) : null,
-                'id_pedagang' => $p->id_pedagang,
+                'name' => $p->name,
+                'price' => $p->price,
+                'category' => $p->category,
+                'photo_path' => $p->photo_path,
+                'photo_url' => $p->photo_path ? url('storage/' . $p->photo_path) : null,
+                'seller_id' => $p->seller_id,
             ];
         });
 
@@ -49,14 +51,8 @@ class ProductController extends Controller
     public function store(StoreProductRequest $request)
     {
         $data = $request->validated();
-        $path = $request->file('foto')->store('produk', 'public');
-        $product = Product::create([
-            'nama_produk' => $data['nama_produk'],
-            'harga_produk' => (int) $data['harga_produk'],
-            'kategori_produk' => $data['kategori_produk'],
-            'foto' => $path,
-            'id_pedagang' => $request->user()->seller->id,
-        ]);
+        $path = $request->file('photo')->store('products', 'public');
+        $product = $this->productService->createForSeller($request->user(), $data, $path);
 
         return $this->success([
             'product' => $this->formatProduct($product),
@@ -74,22 +70,11 @@ class ProductController extends Controller
         }
 
         $data = $request->validated();
-        if (isset($data['nama_produk'])) {
-            $product->nama_produk = $data['nama_produk'];
+        $newPhotoPath = null;
+        if ($request->hasFile('photo')) {
+            $newPhotoPath = $request->file('photo')->store('products', 'public');
         }
-        if (isset($data['harga_produk'])) {
-            $product->harga_produk = (int) $data['harga_produk'];
-        }
-        if (isset($data['kategori_produk'])) {
-            $product->kategori_produk = $data['kategori_produk'];
-        }
-        if ($request->hasFile('foto')) {
-            if ($product->foto) {
-                Storage::disk('public')->delete($product->foto);
-            }
-            $product->foto = $request->file('foto')->store('produk', 'public');
-        }
-        $product->save();
+        $product = $this->productService->updateForSeller($request->user(), $product, $data, $newPhotoPath);
 
         return $this->success(['product' => $this->formatProduct($product)], 'Product updated successfully', 200);
     }
@@ -108,14 +93,15 @@ class ProductController extends Controller
         if (!$product) {
             return $this->error('Product not found', 404);
         }
-        if ((int) $product->id_pedagang !== (int) $user->seller->id) {
-            return $this->error('Forbidden', 403);
-        }
 
-        if ($product->foto) {
-            Storage::disk('public')->delete($product->foto);
+        try {
+            $this->productService->deleteForSeller($user, $product);
+        } catch (\RuntimeException $e) {
+            if ($e->getMessage() === 'Forbidden') {
+                return $this->error('Forbidden', 403);
+            }
+            return $this->error($e->getMessage(), 422);
         }
-        $product->delete();
 
         return $this->success(null, 'Product deleted successfully', 200);
     }
@@ -124,12 +110,12 @@ class ProductController extends Controller
     {
         return [
             'id' => $product->id,
-            'nama_produk' => $product->nama_produk,
-            'harga_produk' => $product->harga_produk,
-            'kategori_produk' => $product->kategori_produk,
-            'foto' => $product->foto,
-            'foto_url' => $product->foto ? url('storage/' . $product->foto) : null,
-            'id_pedagang' => $product->id_pedagang,
+            'name' => $product->name,
+            'price' => $product->price,
+            'category' => $product->category,
+            'photo_path' => $product->photo_path,
+            'photo_url' => $product->photo_path ? url('storage/' . $product->photo_path) : null,
+            'seller_id' => $product->seller_id,
         ];
     }
 }

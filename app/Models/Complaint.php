@@ -9,23 +9,23 @@ class Complaint extends Model
 {
     use HasFactory;
 
-    protected $table = 'keluhans';
+    protected $table = 'complaints';
 
     protected $fillable = [
-        'deskripsi',
+        'description',
         'rating',
-        'id_pembeli',
-        'id_pedagang',
+        'buyer_id',
+        'seller_id',
     ];
 
     public function buyer()
     {
-        return $this->belongsTo(Buyer::class, 'id_pembeli');
+        return $this->belongsTo(Buyer::class, 'buyer_id');
     }
 
     public function seller()
     {
-        return $this->belongsTo(Seller::class, 'id_pedagang');
+        return $this->belongsTo(Seller::class, 'seller_id');
     }
 
     /** @deprecated Use buyer() */

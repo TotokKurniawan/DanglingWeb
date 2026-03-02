@@ -14,9 +14,9 @@ class StoreComplaintRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'deskripsi' => 'required|string|max:2000',
+            'description' => 'required|string|max:2000',
             'rating' => 'required|integer|min:1|max:5',
-            'id_pedagang' => 'nullable|exists:pedagangs,id',
+            'seller_id' => 'nullable|exists:sellers,id',
             'validate_order' => 'nullable|boolean',
         ];
     }
