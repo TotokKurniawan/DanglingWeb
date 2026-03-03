@@ -16,15 +16,27 @@ class AdminController extends Controller
         return view('admin.dashboard', $stats);
     }
 
-    public function indexSellers()
+    public function indexSellers(Request $request)
     {
-        $pedagangs = Seller::paginate(10);
+        $query = Seller::query();
+
+        if ($request->filled('sort')) {
+            match ($request->sort) {
+                'rating'     => $query->orderByDesc('rating_average'),
+                'complaints' => $query->withCount('complaints')->orderByDesc('complaints_count'),
+                default      => $query->orderBy('store_name'),
+            };
+        } else {
+            $query->orderBy('store_name');
+        }
+
+        $pedagangs = $query->paginate(10)->appends($request->query());
         return view('admin.pedagang', compact('pedagangs'));
     }
 
     public function indexOperators()
     {
-        $users = User::whereIn('role', ['operator'])->paginate(10);
+        $users = User::role('admin')->paginate(10);
         return view('admin.dataadmin', compact('users'));
     }
 
@@ -33,15 +45,61 @@ class AdminController extends Controller
         return view('admin.form.tambahadmin');
     }
 
-    public function indexComplaints()
+    /**
+     * Daftar keluhan — dengan filter seller, status, tanggal.
+     */
+    public function indexComplaints(Request $request)
     {
-        $keluhans = Complaint::with(['buyer', 'seller'])->paginate(10);
-        return view('admin.keluhan', compact('keluhans'));
+        $query = Complaint::with(['buyer', 'seller', 'order']);
+
+        // Filter by seller
+        if ($request->filled('seller_id')) {
+            $query->where('seller_id', $request->seller_id);
+        }
+
+        // Filter by status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Filter by tanggal
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
+        $keluhans = $query->orderByDesc('created_at')
+            ->paginate(10)
+            ->appends($request->query());
+
+        $sellers = Seller::orderBy('store_name')->get(['id', 'store_name']);
+
+        return view('admin.keluhan', compact('keluhans', 'sellers'));
+    }
+
+    /**
+     * PATCH /admin/complaints/{id}/status — update status keluhan.
+     */
+    public function updateComplaintStatus(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|in:open,in_progress,resolved,dismissed',
+        ]);
+
+        $complaint = Complaint::findOrFail($id);
+        $complaint->status = $request->status;
+        $complaint->handled_by = auth()->id();
+        $complaint->handled_at = now();
+        $complaint->save();
+
+        return redirect()->back()->with('success', 'Status keluhan berhasil diperbarui.');
     }
 
     public function showProfile()
     {
-        $user = User::where('role', 'admin')->first();
+        $user = User::role('admin')->first();
         if (!$user) {
             return redirect()->back()->with('error', 'Admin user not found.');
         }

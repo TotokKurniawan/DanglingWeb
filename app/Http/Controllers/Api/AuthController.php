@@ -40,20 +40,24 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $request->validate([
+            'name' => 'required|string|max:255',
+            'phone' => 'required|string|max:20',
+            'address' => 'nullable|string',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
         ]);
 
         $user = User::create([
+            'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
 
         Buyer::create([
             'user_id' => $user->id,
-            'name' => '',
-            'phone' => '',
-            'address' => '',
+            'name' => $request->name,
+            'phone' => $request->phone,
+            'address' => $request->input('address', ''),
             'photo_path' => '',
         ]);
 

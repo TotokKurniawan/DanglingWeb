@@ -2,12 +2,15 @@
 
 namespace App\Services\Api;
 
+use App\Models\ActivityLog;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\User;
+use App\Services\FcmNotificationService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class OrderService
 {
@@ -46,8 +49,30 @@ class OrderService
                 ]);
             }
 
-            return $order->load(['orderItems.product', 'buyer', 'seller']);
+            $order = $order->load(['orderItems.product', 'buyer', 'seller']);
+
+            ActivityLog::log('order.created', $order, [
+                'buyer_id'  => $order->buyer_id,
+                'seller_id' => $order->seller_id,
+                'items'     => $order->orderItems->count(),
+            ]);
+
+            return $order;
         });
+
+        // Notify seller: order baru masuk (di luar transaksi)
+        try {
+            $order->loadMissing(['seller', 'buyer']);
+            if ($order->seller && $order->seller->user_id) {
+                $buyerName = $order->buyer->name ?? 'Pembeli';
+                app(FcmNotificationService::class)
+                    ->notifyNewOrderForSeller($order->seller->user_id, $order->id, $buyerName);
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Push to seller on new order failed: ' . $e->getMessage());
+        }
+
+        return $order;
     }
 
     public function getPendingForSeller(User $sellerUser): Collection
@@ -98,6 +123,7 @@ class OrderService
         }
 
         $order->status = Order::STATUS_ACCEPTED;
+        $order->accepted_at = now();
         $order->save();
 
         return $order;
@@ -113,6 +139,7 @@ class OrderService
 
         $order->status           = Order::STATUS_REJECTED;
         $order->rejection_reason = $reason;
+        $order->reject_reason    = $reason;
         $order->save();
 
         return $order;
@@ -127,12 +154,13 @@ class OrderService
         }
 
         $order->status = Order::STATUS_COMPLETED;
+        $order->completed_at = now();
         $order->save();
 
         return $order;
     }
 
-    public function cancelBySeller(Order $order, User $sellerUser): Order
+    public function cancelBySeller(Order $order, User $sellerUser, string $reason): Order
     {
         $this->assertSellerOwnsOrder($order, $sellerUser);
 
@@ -140,13 +168,15 @@ class OrderService
             throw new \RuntimeException('Order can only be cancelled by seller when status is pending or accepted.');
         }
 
-        $order->status = Order::STATUS_CANCELLED;
+        $order->status        = Order::STATUS_CANCELLED;
+        $order->cancelled_by  = 'seller';
+        $order->cancel_reason = $reason;
         $order->save();
 
         return $order;
     }
 
-    public function cancelByBuyer(Order $order, User $buyerUser): Order
+    public function cancelByBuyer(Order $order, User $buyerUser, ?string $reason = null): Order
     {
         $buyer = $buyerUser->buyer;
         if (! $buyer || (int) $order->buyer_id !== (int) $buyer->id) {
@@ -157,10 +187,64 @@ class OrderService
             throw new \RuntimeException('Order can only be cancelled by buyer when status is pending.');
         }
 
-        $order->status = Order::STATUS_CANCELLED;
+        $order->status        = Order::STATUS_CANCELLED;
+        $order->cancelled_by  = 'buyer';
+        if ($reason !== null && $reason !== '') {
+            $order->cancel_reason = $reason;
+        }
         $order->save();
 
         return $order;
+    }
+
+    /**
+     * Re-order: buat order baru berdasarkan order lama.
+     * Clone item dari order sebelumnya, gunakan harga terkini produk.
+     */
+    public function reorder(Order $oldOrder, User $buyerUser): Order
+    {
+        $buyer = $buyerUser->buyer;
+        if (! $buyer || (int) $oldOrder->buyer_id !== (int) $buyer->id) {
+            throw new \RuntimeException('Forbidden');
+        }
+
+        $oldOrder->loadMissing('orderItems');
+        if ($oldOrder->orderItems->isEmpty()) {
+            throw new \RuntimeException('Order lama tidak memiliki item.');
+        }
+
+        // Kumpulkan product_id dari order lama
+        $productIds = $oldOrder->orderItems->pluck('product_id')->toArray();
+        $products   = Product::whereIn('id', $productIds)
+            ->where('seller_id', $oldOrder->seller_id)
+            ->get()
+            ->keyBy('id');
+
+        if ($products->isEmpty()) {
+            throw new \RuntimeException('Tidak ada produk yang masih tersedia dari seller ini.');
+        }
+
+        // Bangun ulang items yang masih tersedia
+        $items = [];
+        foreach ($oldOrder->orderItems as $oi) {
+            if ($products->has($oi->product_id)) {
+                $items[] = [
+                    'product_id' => $oi->product_id,
+                    'quantity'   => $oi->quantity,
+                ];
+            }
+        }
+
+        if (empty($items)) {
+            throw new \RuntimeException('Semua produk dari order lama sudah tidak tersedia.');
+        }
+
+        return $this->createOrder($buyerUser, [
+            'seller_id'      => $oldOrder->seller_id,
+            'buyer_id'       => $buyer->id,
+            'payment_method' => $oldOrder->payment_method ?? Order::PAYMENT_COD,
+            'items'          => $items,
+        ]);
     }
 
     protected function assertSellerOwnsOrder(Order $order, User $sellerUser): void

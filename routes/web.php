@@ -5,11 +5,10 @@ use App\Http\Controllers\Web\ComplaintController;
 use App\Http\Controllers\Web\ForgotController;
 use App\Http\Controllers\Web\LandingController;
 use App\Http\Controllers\Web\LoginController;
-use App\Http\Controllers\Web\OperatorController;
 use App\Http\Controllers\Web\PartnerController;
 use App\Http\Controllers\Web\ProfileAdminController;
-use App\Http\Controllers\Web\ProfileOperatorController;
 use App\Http\Controllers\Web\SellerController;
+use App\Http\Controllers\Web\SettingController;
 use App\Http\Controllers\Web\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -39,9 +38,12 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
     Route::get('/sellers', [AdminController::class, 'indexSellers'])->name('sellers.index');
     Route::get('/complaints', [AdminController::class, 'indexComplaints'])->name('complaints.index');
+    Route::patch('/complaints/{id}/status', [AdminController::class, 'updateComplaintStatus'])->name('complaints.status');
     Route::get('/operators', [AdminController::class, 'indexOperators'])->name('operators.index');
     Route::get('/operators/create', [AdminController::class, 'createOperatorForm'])->name('operators.create');
     Route::get('/profile', [AdminController::class, 'showProfile'])->name('profile.show');
+    Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
+    Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
 });
 Route::post('/seller-status', [SellerController::class, 'updateSellerStatus'])->name('seller.status.update')->middleware(['auth', 'role:admin']);
 
@@ -54,10 +56,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('partners')->name('partners.')
     Route::delete('/{id}', [PartnerController::class, 'destroy'])->name('destroy');
 });
 
-// Profile (admin/operator hanya untuk role masing-masing)
+// Profile admin
 Route::middleware(['auth'])->prefix('profile')->group(function () {
     Route::put('/admin/{id}', [ProfileAdminController::class, 'updateAdminProfile'])->name('admin.profile.update')->middleware('role:admin');
-    Route::put('/operator/{id}', [ProfileAdminController::class, 'updateOperatorProfile'])->name('operator.profile.update')->middleware('role:operator');
 });
 
 // Operators (CRUD) — hanya admin
@@ -67,10 +68,3 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::delete('/users/{id}', [UserController::class, 'destroyUser'])->name('admin.users.destroy');
 });
 
-// Operator panel (harus login + role operator)
-Route::middleware(['auth', 'role:operator'])->prefix('operator')->name('operator.')->group(function () {
-    Route::get('/dashboard', [OperatorController::class, 'dashboard'])->name('dashboard');
-    Route::get('/sellers', [OperatorController::class, 'indexSellers'])->name('sellers.index');
-    Route::get('/complaints', [OperatorController::class, 'indexComplaints'])->name('complaints.index');
-    Route::get('/profile', [ProfileOperatorController::class, 'showProfile'])->name('profile.show');
-});

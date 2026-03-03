@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Hash;
 class AuthWebService
 {
     /**
-     * Validate credentials for web panel and ensure user has admin/operator role.
+     * Validate credentials for web panel and ensure user has admin role.
      *
      * @throws \RuntimeException on invalid credentials or forbidden role.
      */
@@ -20,23 +20,20 @@ class AuthWebService
             throw new \RuntimeException('Invalid email or password');
         }
 
-        if (! $user->hasAnyRole(['admin', 'operator'])) {
-            throw new \RuntimeException('This account cannot access the web panel.');
+        if (! $user->hasRole('admin')) {
+            throw new \RuntimeException('This account cannot access the admin panel.');
         }
 
         return $user;
     }
 
     /**
-     * Determine dashboard route name based on user role.
+     * Determine dashboard route name for web user.
      */
     public function dashboardRouteFor(User $user): string
     {
-        if ($user->hasRole('admin')) {
-            return 'admin.dashboard';
-        }
-
-        return 'operator.dashboard';
+        // Saat ini hanya ada satu role internal (admin) untuk web panel.
+        return 'admin.dashboard';
     }
 }
 

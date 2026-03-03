@@ -12,7 +12,11 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
+        // Auto-cancel pending orders yang melewati batas waktu
+        $schedule->command('orders:auto-cancel')->everyFiveMinutes();
+
+        // Auto-complete accepted orders yang melewati batas waktu
+        $schedule->command('orders:auto-complete')->everyFifteenMinutes();
     }
 
     /**

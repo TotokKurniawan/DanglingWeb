@@ -7,6 +7,7 @@ use App\Http\Requests\Api\CreateOrderRequest;
 use App\Http\Traits\ApiResponse;
 use App\Models\Order;
 use App\Services\Api\OrderService;
+use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
@@ -31,6 +32,28 @@ class OrderController extends Controller
         }
 
         return $this->success(['order' => $this->formatOrder($order)], 'Order created successfully', 201);
+    }
+
+    /**
+     * POST /api/orders/{id}/reorder — buat order baru dari order lama.
+     */
+    public function reorder(Request $request, $id)
+    {
+        $order = Order::find($id);
+        if (! $order) {
+            return $this->error('Order not found', 404);
+        }
+
+        try {
+            $newOrder = $this->orderService->reorder($order, $request->user());
+        } catch (\RuntimeException $e) {
+            if ($e->getMessage() === 'Forbidden') {
+                return $this->error('Forbidden', 403);
+            }
+            return $this->error($e->getMessage(), 422);
+        }
+
+        return $this->success(['order' => $this->formatOrder($newOrder)], 'Re-order berhasil', 201);
     }
 
     /**

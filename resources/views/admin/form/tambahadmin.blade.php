@@ -16,7 +16,7 @@
             <div class="col-12">
                 <div class="card mb-4">
                     <div class="card-header pb-0 d-flex justify-content-between align-items-center">
-                        <h6>Tambah Operator</h6>
+                        <h6>Tambah User Internal</h6>
                     </div>
                     <div class="card-body px-4 pt-4 pb-2">
                         <form action="{{ route('admin.operators.store') }}" method="POST" enctype="multipart/form-data">
@@ -40,15 +40,7 @@
                                     placeholder="Masukkan password" required>
                             </div>
 
-                            <div class="form-group mb-3">
-                                <label for="role" class="form-label">Role</label>
-                                <select class="form-control" id="role" name="role" required>
-                                    <option value="" disabled selected>Pilih Role</option>
-                                    <option value="admin">Admin</option>
-                                    <option value="operator">Operator</option>
-                                    <!-- Tambahkan opsi lainnya sesuai kebutuhan -->
-                                </select>
-                            </div>
+                            <input type="hidden" name="role" value="admin">
 
                             <div class="form-group mb-3">
                                 <label for="photo" class="form-label">Foto</label>

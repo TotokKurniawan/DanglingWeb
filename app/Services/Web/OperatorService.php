@@ -21,9 +21,8 @@ class OperatorService
 
         $user->save();
 
-        // Assign Spatie role for web guard
-        $role = $data['role'] ?? 'operator';
-        $user->assignRole($role);
+        // Assign Spatie role for web guard (saat ini hanya admin untuk web)
+        $user->assignRole('admin');
 
         return $user;
     }
@@ -36,9 +35,7 @@ class OperatorService
             $user->password = Hash::make($data['password']);
         }
 
-        if (! empty($data['role'])) {
-            $user->syncRoles([$data['role']]);
-        }
+        // Untuk sementara, semua user internal dianggap admin.
 
         $user->save();
 

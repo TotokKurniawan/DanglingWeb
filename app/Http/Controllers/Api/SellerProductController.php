@@ -6,45 +6,109 @@ use App\Http\Controllers\Controller;
 use App\Http\Traits\ApiResponse;
 use App\Models\Seller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class SellerProductController extends Controller
 {
     use ApiResponse;
 
+    /**
+     * GET /api/sellers
+     *
+     * Query params:
+     *   lat     float  - latitude buyer (opsional)
+     *   lng     float  - longitude buyer (opsional)
+     *   radius  float  - radius pencarian dalam km (default: 10, opsional)
+     *   sort    string - 'distance' | 'rating' | 'name' (default: 'distance' jika ada koordinat, else 'name')
+     *   page    int    - nomor halaman (default: 1)
+     *   per_page int   - jumlah per halaman (default: 15, max: 50)
+     */
     public function getAllSellers(Request $request)
     {
         try {
-            $sellers = Seller::where('status', 'online')
-                ->with(['products'])
-                ->get();
+            $lat     = $request->filled('lat') ? (float) $request->lat : null;
+            $lng     = $request->filled('lng') ? (float) $request->lng : null;
+            $radius  = $request->filled('radius') ? (float) $request->radius : 10.0;
+            $sort    = $request->input('sort', ($lat !== null && $lng !== null) ? 'distance' : 'name');
+            $perPage = min((int) $request->input('per_page', 15), 50);
 
-            if ($sellers->isEmpty()) {
-                return $this->success(['items' => []], 'No online sellers', 200);
+            $query = Seller::where('is_online', true)
+                ->with(['products' => fn ($q) => $q->where('is_active', true)]);
+
+            // Filter radius dengan Haversine di level database
+            if ($lat !== null && $lng !== null) {
+                $haversine = '(6371 * acos(
+                    cos(radians(?)) * cos(radians(latitude))
+                    * cos(radians(longitude) - radians(?))
+                    + sin(radians(?)) * sin(radians(latitude))
+                ))';
+
+                $query->selectRaw("sellers.*, {$haversine} AS distance", [$lat, $lng, $lat])
+                      ->whereNotNull('latitude')
+                      ->whereNotNull('longitude')
+                      ->having('distance', '<=', $radius);
+
+                if ($sort === 'distance') {
+                    $query->orderBy('distance');
+                }
+            } else {
+                $query->select('sellers.*');
             }
+
+            // Sorting
+            match ($sort) {
+                'rating' => $query->orderByDesc('rating_average')->orderByDesc('rating_count'),
+                'name'   => $query->orderBy('store_name'),
+                default  => null, // distance sudah di-order di atas
+            };
+
+            $sellers = $query->paginate($perPage);
 
             $items = [];
             foreach ($sellers as $seller) {
-                foreach ($seller->products as $product) {
-                    $items[] = [
-                        'id' => $product->id,
-                        'name' => $product->name,
-                        'price' => $product->price,
-                        'category' => $product->category,
-                        'product_photo_url' => $product->photo_path ? url('storage/' . $product->photo_path) : null,
-                        'seller_id' => $seller->id,
-                        'seller_photo_url' => $seller->photo_path ? url('storage/' . $seller->photo_path) : null,
-                    ];
-                }
+                $sellerData = [
+                    'id'             => $seller->id,
+                    'store_name'     => $seller->store_name,
+                    'address'        => $seller->address,
+                    'phone'          => $seller->phone,
+                    'photo_url'      => $seller->photo_path ? url('storage/' . $seller->photo_path) : null,
+                    'rating_average' => $seller->rating_average,
+                    'rating_count'   => $seller->rating_count,
+                    'open_time'      => $seller->open_time,
+                    'close_time'     => $seller->close_time,
+                    'latitude'       => $seller->latitude,
+                    'longitude'      => $seller->longitude,
+                    'distance_km'    => isset($seller->distance) ? round($seller->distance, 2) : null,
+                    'products'       => $seller->products->map(fn ($p) => [
+                        'id'        => $p->id,
+                        'name'      => $p->name,
+                        'price'     => $p->price,
+                        'category'  => $p->category,
+                        'photo_url' => $p->photo_path ? url('storage/' . $p->photo_path) : null,
+                    ]),
+                ];
+                $items[] = $sellerData;
             }
 
-            return $this->success(['items' => $items], 'Success', 200);
+            return $this->success([
+                'items'       => $items,
+                'pagination'  => [
+                    'current_page' => $sellers->currentPage(),
+                    'per_page'     => $sellers->perPage(),
+                    'total'        => $sellers->total(),
+                    'last_page'    => $sellers->lastPage(),
+                ],
+            ], 'Success', 200);
         } catch (\Exception $e) {
             Log::error('getAllSellers: ' . $e->getMessage());
             return $this->error('Server error', 500);
         }
     }
 
+    /**
+     * GET /api/sellers/{id}
+     */
     public function getSellerById(Request $request, $id)
     {
         $seller = Seller::with('products')->find($id);
@@ -52,15 +116,27 @@ class SellerProductController extends Controller
             return $this->error('Seller not found', 404);
         }
 
-        $data = $seller->toArray();
-        if (isset($data['photo_path']) && $data['photo_path']) {
-            $data['photo_url'] = url('storage/' . $data['photo_path']);
-        }
-        foreach ($data['products'] ?? [] as $i => $p) {
-            if (!empty($p['photo_path'])) {
-                $data['products'][$i]['photo_url'] = url('storage/' . $p['photo_path']);
-            }
-        }
+        $data = [
+            'id'             => $seller->id,
+            'store_name'     => $seller->store_name,
+            'address'        => $seller->address,
+            'phone'          => $seller->phone,
+            'photo_url'      => $seller->photo_path ? url('storage/' . $seller->photo_path) : null,
+            'is_online'      => $seller->is_online,
+            'rating_average' => $seller->rating_average,
+            'rating_count'   => $seller->rating_count,
+            'open_time'      => $seller->open_time,
+            'close_time'     => $seller->close_time,
+            'latitude'       => $seller->latitude,
+            'longitude'      => $seller->longitude,
+            'products'       => $seller->products->map(fn ($p) => [
+                'id'        => $p->id,
+                'name'      => $p->name,
+                'price'     => $p->price,
+                'category'  => $p->category,
+                'photo_url' => $p->photo_path ? url('storage/' . $p->photo_path) : null,
+            ]),
+        ];
 
         return $this->success(['seller' => $data], 'Success', 200);
     }

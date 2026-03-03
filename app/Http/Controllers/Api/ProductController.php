@@ -38,6 +38,7 @@ class ProductController extends Controller
                 'category' => $p->category,
                 'photo_path' => $p->photo_path,
                 'photo_url' => $p->photo_path ? url('storage/' . $p->photo_path) : null,
+                'is_active' => $p->is_active,
                 'seller_id' => $p->seller_id,
             ];
         });
@@ -69,6 +70,8 @@ class ProductController extends Controller
             return $this->error('Product not found', 404);
         }
 
+        $this->authorize('manage', $product);
+
         $data = $request->validated();
         $newPhotoPath = null;
         if ($request->hasFile('photo')) {
@@ -94,6 +97,8 @@ class ProductController extends Controller
             return $this->error('Product not found', 404);
         }
 
+        $this->authorize('manage', $product);
+
         try {
             $this->productService->deleteForSeller($user, $product);
         } catch (\RuntimeException $e) {
@@ -115,7 +120,32 @@ class ProductController extends Controller
             'category' => $product->category,
             'photo_path' => $product->photo_path,
             'photo_url' => $product->photo_path ? url('storage/' . $product->photo_path) : null,
+            'is_active' => $product->is_active,
             'seller_id' => $product->seller_id,
         ];
+    }
+
+    /**
+     * PATCH /api/products/{id}/toggle-active — toggle aktif/nonaktif produk.
+     */
+    public function toggleActive(Request $request, $id)
+    {
+        $product = Product::find($id);
+        if (! $product) {
+            return $this->error('Product not found', 404);
+        }
+
+        try {
+            $product = $this->productService->toggleActive($request->user(), $product);
+        } catch (\RuntimeException $e) {
+            if ($e->getMessage() === 'Forbidden') {
+                return $this->error('Forbidden', 403);
+            }
+            return $this->error($e->getMessage(), 422);
+        }
+
+        return $this->success([
+            'product' => $this->formatProduct($product),
+        ], $product->is_active ? 'Produk diaktifkan' : 'Produk dinonaktifkan', 200);
     }
 }

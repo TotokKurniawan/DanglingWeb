@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ComplaintController as ApiComplaintController;
+use App\Http\Controllers\Api\DeviceTokenController;
+use App\Http\Controllers\Api\FavoriteController;
 use App\Http\Controllers\Api\LocationController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\OrderHistoryController;
@@ -39,32 +41,58 @@ Route::middleware('throttle:10,1')->group(function () {
 Route::middleware('auth:api')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
 
-    Route::post('/upgrade-to-seller', [SellerController::class, 'upgradeToSeller']);
-    Route::get('/store-status', [SellerController::class, 'getStoreStatus']);
-    Route::post('/store-status', [SellerController::class, 'updateStoreStatus']);
+    // Buyer-only routes
+    Route::middleware('role:buyer')->group(function () {
+        Route::post('/upgrade-to-seller', [SellerController::class, 'upgradeToSeller']);
+        Route::post('/orders', [OrderController::class, 'createOrder']);
+        Route::post('/orders/{id}/reorder', [OrderController::class, 'reorder']);
+        Route::put('/orders/{id}/cancel-by-buyer', [OrderStatusController::class, 'cancelByBuyer']);
+        Route::put('/profile/buyer/{id}', [ProfileController::class, 'updateBuyerProfile']);
+        Route::post('/complaints', [ApiComplaintController::class, 'store'])->middleware('throttle:10,1');
 
-    Route::get('/order-history', [OrderHistoryController::class, 'getOrderHistory']);
-    Route::post('/orders', [OrderController::class, 'createOrder']);
+        // Favorites
+        Route::get('/favorites', [FavoriteController::class, 'index']);
+        Route::post('/favorites', [FavoriteController::class, 'store']);
+        Route::delete('/favorites/{seller_id}', [FavoriteController::class, 'destroy']);
+    });
 
-    Route::get('/products', [ProductController::class, 'index']);
-    Route::post('/products', [ProductController::class, 'store']);
-    Route::put('/products/{id}', [ProductController::class, 'update']);
-    Route::delete('/products/{id}', [ProductController::class, 'destroy']);
+    // Seller-only routes
+    Route::middleware('role:seller')->group(function () {
+        // Store status & configuration
+        Route::get('/store-status', [SellerController::class, 'getStoreStatus']);
+        Route::post('/store-status', [SellerController::class, 'updateStoreStatus']);
 
+        // Pending orders for this seller
+        Route::get('/orders/pending', [OrderStatusController::class, 'getPendingOrders']);
+        Route::put('/orders/{id}/accept', [OrderStatusController::class, 'acceptOrder']);
+        Route::put('/orders/{id}/reject', [OrderStatusController::class, 'rejectOrder']);
+        Route::put('/orders/{id}/complete', [OrderStatusController::class, 'completeOrder']);
+        Route::put('/orders/{id}/cancel', [OrderStatusController::class, 'cancelOrder']);
+
+        // Product management for the authenticated seller
+        Route::get('/products', [ProductController::class, 'index']);
+        Route::post('/products', [ProductController::class, 'store']);
+        Route::put('/products/{id}', [ProductController::class, 'update']);
+        Route::delete('/products/{id}', [ProductController::class, 'destroy']);
+        Route::patch('/products/{id}/toggle-active', [ProductController::class, 'toggleActive']);
+
+        Route::put('/profile/seller/{id}', [ProfileController::class, 'updateSellerProfile']);
+        Route::put('/sellers/{id}/location', [LocationController::class, 'updateLocation']);
+
+        // Seller stats
+        Route::get('/sellers/me/stats', [SellerController::class, 'getStats']);
+    });
+
+    // Shared buyer or seller
+    Route::middleware('role:buyer|seller')->group(function () {
+        Route::get('/order-history', [OrderHistoryController::class, 'getOrderHistory']);
+    });
+
+    // Shared (any authenticated API user)
     Route::get('/sellers', [SellerProductController::class, 'getAllSellers']);
     Route::get('/sellers/{id}', [SellerProductController::class, 'getSellerById']);
 
-    Route::get('/orders/pending', [OrderStatusController::class, 'getPendingOrders']);
-    Route::put('/orders/{id}/accept', [OrderStatusController::class, 'acceptOrder']);
-    Route::put('/orders/{id}/reject', [OrderStatusController::class, 'rejectOrder']);
-    Route::put('/orders/{id}/complete', [OrderStatusController::class, 'completeOrder']);
-    Route::put('/orders/{id}/cancel', [OrderStatusController::class, 'cancelOrder']);
-    Route::put('/orders/{id}/cancel-by-buyer', [OrderStatusController::class, 'cancelByBuyer']);
-
-    Route::put('/profile/buyer/{id}', [ProfileController::class, 'updateBuyerProfile']);
-    Route::put('/profile/seller/{id}', [ProfileController::class, 'updateSellerProfile']);
-
-    Route::put('/sellers/{id}/location', [LocationController::class, 'updateLocation']);
-
-    Route::post('/complaints', [ApiComplaintController::class, 'store'])->middleware('throttle:10,1');
+    // Device token FCM (buyer dan seller)
+    Route::post('/device-token', [DeviceTokenController::class, 'store']);
+    Route::delete('/device-token', [DeviceTokenController::class, 'destroy']);
 });

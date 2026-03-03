@@ -4,6 +4,12 @@ namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Request;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Illuminate\Validation\ValidationException;
 use Throwable;
 
@@ -19,6 +25,79 @@ class Handler extends ExceptionHandler
             'message' => $exception->getMessage(),
             'errors' => $exception->errors(),
         ], $exception->status);
+    }
+
+    /**
+     * Render an exception into an HTTP response.
+     *
+     * For API requests, always return a consistent JSON structure.
+     */
+    public function render($request, Throwable $e)
+    {
+        if ($this->isApiRequest($request)) {
+            // Authentication (unauthenticated)
+            if ($e instanceof AuthenticationException) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthenticated.',
+                ], 401);
+            }
+
+            // Authorization (forbidden)
+            if ($e instanceof AuthorizationException) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage() ?: 'Forbidden.',
+                ], 403);
+            }
+
+            // Model not found → 404
+            if ($e instanceof ModelNotFoundException) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Resource not found.',
+                ], 404);
+            }
+
+            // Route/method issues
+            if ($e instanceof NotFoundHttpException) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Endpoint not found.',
+                ], 404);
+            }
+
+            if ($e instanceof MethodNotAllowedHttpException) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'HTTP method not allowed for this endpoint.',
+                ], 405);
+            }
+
+            // Other HTTP exceptions
+            if ($e instanceof HttpExceptionInterface) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage() ?: 'HTTP error.',
+                ], $e->getStatusCode(), $e->getHeaders());
+            }
+
+            // Generic fallback for unexpected errors
+            return response()->json([
+                'success' => false,
+                'message' => 'Server error.',
+            ], 500);
+        }
+
+        return parent::render($request, $e);
+    }
+
+    /**
+     * Determine if the request should be treated as an API request.
+     */
+    protected function isApiRequest(Request $request): bool
+    {
+        return $request->expectsJson() || $request->is('api/*');
     }
 
     /**

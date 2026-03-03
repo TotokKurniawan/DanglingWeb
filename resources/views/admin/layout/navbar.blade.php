@@ -9,12 +9,12 @@
                 <!-- Breadcrumb untuk halaman aktif -->
                 <li class="breadcrumb-item text-sm text-white {{ Route::is('admin.dashboard') ? 'active' : '' }}"
                     aria-current="page">
-                    {{ Route::is('admin.dashboard') ? 'Dashboard' : (Route::is('admin.sellers.index') ? 'Sellers' : (Route::is('admin.profile.show') ? 'Profile' : (Route::is('partners.create') ? 'Add Partner' : (Route::is('admin.operators.create') ? 'Add Operator' : (Route::is('admin.operators.index') ? 'Operators' : (Route::is('partners.index') ? 'Partners' : (Route::is('admin.complaints.index') ? 'Complaints' : ''))))))) }}
+                    {{ Route::is('admin.dashboard') ? 'Dashboard' : (Route::is('admin.sellers.index') ? 'Sellers' : (Route::is('admin.profile.show') ? 'Profile' : (Route::is('partners.create') ? 'Add Partner' : (Route::is('admin.operators.create') ? 'Add User' : (Route::is('admin.operators.index') ? 'Users' : (Route::is('partners.index') ? 'Partners' : (Route::is('admin.complaints.index') ? 'Complaints' : ''))))))) }}
                 </li>
             </ol>
             <!-- Judul untuk halaman aktif -->
             <h6 class="font-weight-bolder text-white mb-0">
-                {{ Route::is('admin.dashboard') ? 'Dashboard' : (Route::is('admin.sellers.index') ? 'Sellers' : (Route::is('admin.operators.index') ? 'Operators' : (Route::is('admin.complaints.index') ? 'Complaints' : (Route::is('admin.operators.create') ? 'Add Operator' : (Route::is('partners.create') ? 'Add Partner' : (Route::is('admin.profile.show') ? 'Profile' : (Route::is('partners.index') ? 'Partners' : ''))))))) }}
+                {{ Route::is('admin.dashboard') ? 'Dashboard' : (Route::is('admin.sellers.index') ? 'Sellers' : (Route::is('admin.operators.index') ? 'Users' : (Route::is('admin.complaints.index') ? 'Complaints' : (Route::is('admin.operators.create') ? 'Add User' : (Route::is('partners.create') ? 'Add Partner' : (Route::is('admin.profile.show') ? 'Profile' : (Route::is('partners.index') ? 'Partners' : ''))))))) }}
             </h6>
         </nav>
         <div class="collapse navbar-collapse mt-sm-0 mt-2 me-md-0 me-sm-4" id="navbar">

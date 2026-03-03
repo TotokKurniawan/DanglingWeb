@@ -78,5 +78,20 @@ class ProductService
 
         $product->delete();
     }
-}
 
+    /**
+     * Toggle aktif/nonaktif produk.
+     */
+    public function toggleActive(User $sellerUser, Product $product): Product
+    {
+        $seller = $sellerUser->seller;
+        if (! $seller || (int) $product->seller_id !== (int) $seller->id) {
+            throw new \RuntimeException('Forbidden');
+        }
+
+        $product->is_active = ! $product->is_active;
+        $product->save();
+
+        return $product;
+    }
+}

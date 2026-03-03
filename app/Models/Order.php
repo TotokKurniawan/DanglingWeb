@@ -17,12 +17,26 @@ class Order extends Model
     public const STATUS_COMPLETED = 'completed';
     public const STATUS_CANCELLED = 'cancelled';
 
+    // Payment methods
+    public const PAYMENT_COD      = 'COD';
+    public const PAYMENT_TRANSFER = 'TRANSFER';
+
+    // Payment statuses
+    public const PAYMENT_UNPAID = 'unpaid';
+    public const PAYMENT_PAID   = 'paid';
+
     protected $fillable = [
         'status',
         'payment_method',
+        'payment_status',
         'rejection_reason',
+        'cancelled_by',
+        'cancel_reason',
+        'reject_reason',
         'buyer_id',
         'seller_id',
+        'accepted_at',
+        'completed_at',
     ];
 
     public function buyer()
@@ -69,7 +83,21 @@ class Order extends Model
      */
     public function canBeCancelledByBuyer(): bool
     {
-        return $this->isPending();
+        if (! $this->isPending()) {
+            return false;
+        }
+
+        $limit = config('order.buyer_cancel_timeout_minutes');
+
+        if ($limit === null) {
+            return true;
+        }
+
+        if (! $this->created_at) {
+            return true;
+        }
+
+        return $this->created_at->diffInMinutes(now()) <= (int) $limit;
     }
 
     /**

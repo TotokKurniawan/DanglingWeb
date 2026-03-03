@@ -60,7 +60,7 @@
                         <div class="row">
                             <div class="col-8">
                                 <div class="numbers">
-                                    <p class="text-sm mb-0 text-uppercase font-weight-bold">Total Operator</p>
+                                    <p class="text-sm mb-0 text-uppercase font-weight-bold">Total User Internal</p>
                                     <h5 class="font-weight-bolder">
                                         {{ $totalOperator }}
                                         <p class="mb-0">
@@ -235,12 +235,76 @@
 
         </div>
     </div>
+
+    {{-- Widget tambahan: Order Stats, Top Sellers, Ringkasan Komplain --}}
+    <div class="row mt-4">
+        {{-- Order Stats --}}
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header pb-0">
+                    <h6>Order Hari Ini</h6>
+                </div>
+                <div class="card-body pt-2">
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="icon icon-shape icon-sm bg-gradient-success shadow text-center rounded-circle me-2">
+                            <i class="ni ni-cart text-white text-sm" aria-hidden="true"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm mb-0">Order Masuk: <strong>{{ $ordersToday }}</strong></p>
+                            <p class="text-sm mb-0">Selesai: <strong>{{ $completedToday }}</strong></p>
+                        </div>
+                    </div>
+                    <p class="text-xs text-secondary mb-0">Order minggu ini: <strong>{{ $ordersThisWeek }}</strong></p>
+                </div>
+            </div>
+        </div>
+
+        {{-- Ringkasan Komplain --}}
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header pb-0">
+                    <h6>Ringkasan Keluhan</h6>
+                </div>
+                <div class="card-body pt-2">
+                    <div class="d-flex flex-wrap gap-2">
+                        <span class="badge bg-gradient-warning">Open: {{ $complaintSummary['open'] }}</span>
+                        <span class="badge bg-gradient-info">In Progress: {{ $complaintSummary['in_progress'] }}</span>
+                        <span class="badge bg-gradient-success">Resolved: {{ $complaintSummary['resolved'] }}</span>
+                        <span class="badge bg-gradient-secondary">Dismissed: {{ $complaintSummary['dismissed'] }}</span>
+                    </div>
+                    <p class="text-sm mt-2 mb-0">Total: <strong>{{ $complaintSummary['total'] }}</strong></p>
+                </div>
+            </div>
+        </div>
+
+        {{-- Top Sellers --}}
+        <div class="col-xl-4 col-md-12 mb-4">
+            <div class="card h-100">
+                <div class="card-header pb-0">
+                    <h6>Top Seller</h6>
+                </div>
+                <div class="card-body pt-2">
+                    @forelse ($topSellers as $ts)
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-sm">{{ $ts['store_name'] }}</span>
+                            <span class="text-xs text-secondary">
+                                ⭐ {{ $ts['rating_average'] ?? '-' }} · {{ $ts['order_count'] }} order
+                            </span>
+                        </div>
+                    @empty
+                        <p class="text-xs text-secondary mb-0">Belum ada data.</p>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row mt-4">
         <div class="col-lg-12 mb-lg-0 mb-4">
             <div class="card ">
                 <div class="card-header pb-0 p-3">
                     <div class="d-flex justify-content-between">
-                        <h6 class="mb-2">Data Operator</h6>
+                        <h6 class="mb-2">Data User Internal</h6>
                     </div>
                 </div>
                 <div class="table-responsive ">
