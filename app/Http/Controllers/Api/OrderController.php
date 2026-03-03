@@ -17,6 +17,33 @@ class OrderController extends Controller
         protected OrderService $orderService,
     ) {}
 
+    /**
+     * @OA\Post(
+     *     path="/api/orders",
+     *     summary="Create a new order",
+     *     tags={"Orders"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"seller_id","payment_method","items"},
+     *             @OA\Property(property="seller_id", type="integer", example=1),
+     *             @OA\Property(property="payment_method", type="string", example="TRANSFER"),
+     *             @OA\Property(property="notes", type="string", example="Tolong jangan pedas"),
+     *             @OA\Property(property="voucher_code", type="string", example="PROMO_2026"),
+     *             @OA\Property(
+     *                 property="items", type="array",
+     *                 @OA\Items(
+     *                     @OA\Property(property="product_id", type="integer", example=1),
+     *                     @OA\Property(property="quantity", type="integer", example=2)
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(response=201, description="Order created successfully"),
+     *     @OA\Response(response=422, description="Validation error")
+     * )
+     */
     public function createOrder(CreateOrderRequest $request)
     {
         try {
@@ -32,6 +59,31 @@ class OrderController extends Controller
         }
 
         return $this->success(['order' => $this->formatOrder($order)], 'Order created successfully', 201);
+    }
+
+    /**
+     * GET /api/orders/{id} — detail satu order.
+     */
+    public function show(Request $request, $id)
+    {
+        $order = Order::with(['orderItems.product', 'buyer', 'seller'])->find($id);
+        if (! $order) {
+            return $this->error('Order not found', 404);
+        }
+
+        $user = $request->user();
+        $buyer = $user->buyer;
+        $seller = $user->seller;
+
+        // Pastikan order milik user ini (sebagai buyer atau seller)
+        $isBuyer  = $buyer && $order->buyer_id === $buyer->id;
+        $isSeller = $seller && $order->seller_id === $seller->id;
+
+        if (! $isBuyer && ! $isSeller) {
+            return $this->error('Forbidden', 403);
+        }
+
+        return $this->success(['order' => $this->formatOrder($order)], 'Order detail', 200);
     }
 
     /**
@@ -54,6 +106,46 @@ class OrderController extends Controller
         }
 
         return $this->success(['order' => $this->formatOrder($newOrder)], 'Re-order berhasil', 201);
+    }
+
+    /**
+     * PUT /api/orders/{id}/confirm-payment — upload bukti pembayaran.
+     */
+    public function confirmPayment(Request $request, $id)
+    {
+        $request->validate([
+            'payment_proof' => 'required|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
+
+        $order = Order::find($id);
+        if (! $order) {
+            return $this->error('Order not found', 404);
+        }
+
+        $user = $request->user();
+        $buyer = $user->buyer;
+        if (! $buyer || $order->buyer_id !== $buyer->id) {
+            return $this->error('Forbidden', 403);
+        }
+
+        if ($order->payment_method !== Order::PAYMENT_TRANSFER) {
+            return $this->error('Konfirmasi pembayaran hanya untuk metode transfer.', 422);
+        }
+
+        if ($order->payment_status === Order::PAYMENT_PAID) {
+            return $this->error('Pembayaran sudah dikonfirmasi sebelumnya.', 422);
+        }
+
+        $path = $request->file('payment_proof')->store('payment_proofs', 'public');
+
+        $order->update([
+            'payment_proof_path' => $path,
+            'payment_status'     => Order::PAYMENT_PAID,
+        ]);
+
+        return $this->success([
+            'order' => $this->formatOrder($order->fresh(['orderItems.product', 'buyer', 'seller'])),
+        ], 'Bukti pembayaran berhasil diupload.', 200);
     }
 
     /**

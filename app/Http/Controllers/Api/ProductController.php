@@ -47,7 +47,30 @@ class ProductController extends Controller
     }
 
     /**
-     * POST /api/products — add product (seller only).
+     * @OA\Post(
+     *     path="/api/products",
+     *     summary="Add a new product (Seller only)",
+     *     tags={"Products"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 required={"name","price","photo"},
+     *                 @OA\Property(property="name", type="string", example="Baju Koko"),
+     *                 @OA\Property(property="description", type="string", example="Baju muslim modern"),
+     *                 @OA\Property(property="price", type="number", example=100000),
+     *                 @OA\Property(property="stock", type="integer", example=10),
+     *                 @OA\Property(property="category_id", type="integer", example=1),
+     *                 @OA\Property(property="photo", type="string", format="binary")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(response=201, description="Product added successfully"),
+     *     @OA\Response(response=422, description="Validation error"),
+     *     @OA\Response(response=403, description="Forbidden")
+     * )
      */
     public function store(StoreProductRequest $request)
     {
@@ -147,5 +170,50 @@ class ProductController extends Controller
         return $this->success([
             'product' => $this->formatProduct($product),
         ], $product->is_active ? 'Produk diaktifkan' : 'Produk dinonaktifkan', 200);
+    }
+    /**
+     * GET /api/products/search — pencarian produk lintas seller.
+     * Query params: q, category_id, price_min, price_max, per_page
+     */
+    public function search(Request $request)
+    {
+        $perPage = min((int) $request->input('per_page', 20), 50);
+
+        $query = Product::active()
+            ->with(['seller', 'categoryRelation'])
+            ->whereHas('seller', function ($q) {
+                $q->where('is_online', true)->where('is_suspended', false);
+            });
+
+        if ($request->filled('q')) {
+            $keyword = $request->input('q');
+            $query->where(function ($q) use ($keyword) {
+                $q->where('name', 'like', "%{$keyword}%")
+                  ->orWhere('description', 'like', "%{$keyword}%");
+            });
+        }
+
+        if ($request->filled('category_id')) {
+            $query->where('category_id', $request->input('category_id'));
+        }
+
+        if ($request->filled('price_min')) {
+            $query->where('price', '>=', (int) $request->input('price_min'));
+        }
+
+        if ($request->filled('price_max')) {
+            $query->where('price', '<=', (int) $request->input('price_max'));
+        }
+
+        $products = $query->orderBy('name')->paginate($perPage);
+
+        return $this->success([
+            'products'   => collect($products->items())->map(fn ($p) => $this->formatProduct($p)),
+            'pagination' => [
+                'current_page' => $products->currentPage(),
+                'last_page'    => $products->lastPage(),
+                'total'        => $products->total(),
+            ],
+        ], 'Search results', 200);
     }
 }

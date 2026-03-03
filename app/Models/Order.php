@@ -29,6 +29,10 @@ class Order extends Model
         'status',
         'payment_method',
         'payment_status',
+        'payment_proof_path',
+        'voucher_id',
+        'discount_amount',
+        'notes',
         'rejection_reason',
         'cancelled_by',
         'cancel_reason',
@@ -52,6 +56,27 @@ class Order extends Model
     public function orderItems()
     {
         return $this->hasMany(OrderItem::class, 'order_id');
+    }
+
+    public function voucher()
+    {
+        return $this->belongsTo(Voucher::class, 'voucher_id');
+    }
+
+    // ─── Accessors ────────────────────────────────────────────────────────
+
+    protected $appends = ['total_price'];
+
+    /**
+     * Total harga order (sum unit_price * quantity dari semua item - diskon).
+     */
+    public function getTotalPriceAttribute(): int
+    {
+        $subtotal = (int) $this->orderItems->sum(function ($item) {
+            return $item->unit_price * $item->quantity;
+        });
+
+        return max(0, $subtotal - ($this->discount_amount ?? 0));
     }
 
     /**

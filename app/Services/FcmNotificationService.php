@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\DeviceToken;
 use App\Models\User;
+use App\Models\UserNotification;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -87,6 +88,12 @@ class FcmNotificationService
             'order_id' => (string) $orderId,
             'status'   => $newStatus,
         ]);
+
+        // Simpan juga sebagai notifikasi in-app
+        UserNotification::send($buyerUserId, 'Update Order', $body, 'order_status', [
+            'order_id' => $orderId,
+            'status'   => $newStatus,
+        ]);
     }
 
     /**
@@ -99,6 +106,11 @@ class FcmNotificationService
         $this->sendToUser($sellerUserId, 'Order Baru!', $body, [
             'type'     => 'new_order',
             'order_id' => (string) $orderId,
+        ]);
+
+        // Simpan juga sebagai notifikasi in-app
+        UserNotification::send($sellerUserId, 'Order Baru!', $body, 'new_order', [
+            'order_id' => $orderId,
         ]);
     }
 }

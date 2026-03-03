@@ -18,19 +18,24 @@ class Seller extends Model
         'photo_path',
         'status',
         'is_online',
+        'is_suspended',
+        'suspended_reason',
         'rating_average',
         'rating_count',
         'open_time',
         'close_time',
         'latitude',
         'longitude',
+        'location_updated_at',
         'user_id',
     ];
 
     protected $casts = [
-        'is_online'      => 'boolean',
-        'rating_average' => 'float',
-        'rating_count'   => 'integer',
+        'is_online'           => 'boolean',
+        'is_suspended'        => 'boolean',
+        'rating_average'      => 'float',
+        'rating_count'        => 'integer',
+        'location_updated_at' => 'datetime',
     ];
 
     // ─── Relasi ──────────────────────────────────────────────────────────────

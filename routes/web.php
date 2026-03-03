@@ -37,13 +37,19 @@ Route::get('/forgot-password', [ForgotController::class, 'showForgotForm'])->nam
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
     Route::get('/sellers', [AdminController::class, 'indexSellers'])->name('sellers.index');
+    Route::get('/sellers/export', [AdminController::class, 'exportSellers'])->name('sellers.export');
+    Route::get('/buyers', [AdminController::class, 'indexBuyers'])->name('buyers.index');
+    Route::get('/orders', [AdminController::class, 'indexOrders'])->name('orders.index');
+    Route::get('/activity-logs', [AdminController::class, 'indexActivityLogs'])->name('activity-logs.index');
     Route::get('/complaints', [AdminController::class, 'indexComplaints'])->name('complaints.index');
+    Route::get('/complaints/export', [AdminController::class, 'exportComplaints'])->name('complaints.export');
     Route::patch('/complaints/{id}/status', [AdminController::class, 'updateComplaintStatus'])->name('complaints.status');
     Route::get('/operators', [AdminController::class, 'indexOperators'])->name('operators.index');
     Route::get('/operators/create', [AdminController::class, 'createOperatorForm'])->name('operators.create');
     Route::get('/profile', [AdminController::class, 'showProfile'])->name('profile.show');
     Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
     Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
+    Route::patch('/sellers/{id}/suspend', [AdminController::class, 'toggleSuspend'])->name('sellers.suspend');
 });
 Route::post('/seller-status', [SellerController::class, 'updateSellerStatus'])->name('seller.status.update')->middleware(['auth', 'role:admin']);
 

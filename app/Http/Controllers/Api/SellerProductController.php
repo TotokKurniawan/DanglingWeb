@@ -34,6 +34,7 @@ class SellerProductController extends Controller
             $perPage = min((int) $request->input('per_page', 15), 50);
 
             $query = Seller::where('is_online', true)
+                ->where('is_suspended', false)
                 ->with(['products' => fn ($q) => $q->where('is_active', true)]);
 
             // Filter radius dengan Haversine di level database

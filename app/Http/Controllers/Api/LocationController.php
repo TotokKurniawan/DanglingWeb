@@ -35,4 +35,21 @@ class LocationController extends Controller
 
         return $this->success(null, 'Seller location updated successfully', 200);
     }
+
+    public function updateLocationMe(Request $request)
+    {
+        $authUser = $request->user();
+        if (!$authUser || !$authUser->seller) {
+            return $this->error('Forbidden', 403);
+        }
+
+        $request->validate([
+            'latitude' => 'required|numeric|between:-90,90',
+            'longitude' => 'required|numeric|between:-180,180',
+        ]);
+
+        $this->sellerService->updateLocation($authUser, (float) $request->latitude, (float) $request->longitude);
+
+        return $this->success(null, 'Seller location updated successfully', 200);
+    }
 }

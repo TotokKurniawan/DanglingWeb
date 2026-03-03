@@ -6,6 +6,9 @@
                 <div class="card mb-4">
                     <div class="card-header pb-0 d-flex justify-content-between align-items-center">
                         <h6>Table Pedagang</h6>
+                        <a href="{{ route('admin.sellers.export') }}" class="btn bg-gradient-success btn-sm mb-0">
+                            <i class="fas fa-file-excel me-2"></i> Export CSV
+                        </a>
                     </div>
                     <div class="card-body px-0 pt-0 pb-2">
                         <div class="table-responsive p-0">

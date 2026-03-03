@@ -99,6 +99,10 @@ php artisan db:seed --class=SettingsSeeder
 | `000006` | settings (tabel baru) |
 | `000007` | activity_logs (tabel baru) |
 | `000008` | device_tokens (tabel baru) |
+| `000009` | conversations (tabel baru fitur chat) |
+| `000010` | messages (tabel baru fitur chat) |
+| `000011` | reviews (tabel baru pemisah rating) |
+| `000012` | vouchers (tabel baru kode promo) |
 
 ---
 
@@ -140,10 +144,28 @@ npm run dev
 Akses:
 - **Web Panel Admin**: http://localhost:8000/login
 - **API Base URL**: http://localhost:8000/api
+- **API Documentation**: http://localhost:8000/api/documentation
 
 ---
 
-## 7. Scheduler & Queue (Production)
+## 7. API Documentation (Swagger)
+
+Aplikasi API DanglingWeb telah dilengkapi dengan dokumentasi OpenAPI / Swagger.
+
+1. Publish configuration swagger (jika belum ada):
+```bash
+php artisan vendor:publish --provider "L5Swagger\L5SwaggerServiceProvider"
+```
+
+2. Generate file `swagger.json` terbaru jika ada perubahan coding API:
+```bash
+$env:COMPOSER_PROCESS_TIMEOUT=2000; php artisan l5-swagger:generate
+```
+*Catatan: Jika memakai linux/macOS cukup gunakan `COMPOSER_PROCESS_TIMEOUT=2000 php artisan l5-swagger:generate`*
+
+Akses dokumentasi UI lewat browser di URL `/api/documentation`.
+
+## 8. Scheduler & Queue (Production)
 
 ### Scheduler (Wajib di Production)
 
@@ -180,7 +202,7 @@ php artisan queue:work
 
 ---
 
-## 8. Firebase Cloud Messaging (Opsional)
+## 9. Firebase Cloud Messaging (Opsional)
 
 Diperlukan untuk push notification ke mobile app (buyer & seller).
 
@@ -197,7 +219,7 @@ Tanpa konfigurasi ini, push notification akan di-skip (tidak error).
 
 ---
 
-## 9. Konfigurasi Sistem (Admin Panel)
+## 10. Konfigurasi Sistem (Admin Panel)
 
 Setelah setup, buka http://localhost:8000/admin/settings untuk mengatur:
 

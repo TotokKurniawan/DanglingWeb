@@ -73,6 +73,7 @@ class SellerService
 
         $seller->latitude  = $latitude;
         $seller->longitude = $longitude;
+        $seller->location_updated_at = now();
         $seller->save();
     }
 }

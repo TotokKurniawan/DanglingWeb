@@ -30,12 +30,51 @@ class OrderService
 
         $productMap = $products->keyBy('id');
 
-        return DB::transaction(function () use ($data, $items, $productMap) {
+        // Validasi stok
+        foreach ($items as $item) {
+            $product = $productMap->get($item['product_id']);
+            if ($product->stock !== null && $product->stock < (int) $item['quantity']) {
+                throw new \RuntimeException("Stok produk \"{$product->name}\" tidak cukup (tersedia: {$product->stock}).");
+            }
+        }
+
+        // Validasi dan Hitung Voucher jika dicantumkan
+        $voucherId = null;
+        $discountAmount = 0;
+        
+        if (!empty($data['voucher_code'])) {
+            $voucher = \App\Models\Voucher::activeAndValid()
+                                          ->where('code', $data['voucher_code'])
+                                          ->first();
+                                          
+            if (!$voucher) {
+                throw new \RuntimeException('Voucher tidak valid atau sudah expired.');
+            }
+            
+            // Hitung subtotal untuk pesanan
+            $subtotal = 0;
+            foreach ($items as $item) {
+                $product = $productMap->get($item['product_id']);
+                $subtotal += $product->price * (int) $item['quantity'];
+            }
+            
+            if ($subtotal < $voucher->min_purchase) {
+                throw new \RuntimeException("Pembelian minimum Rp " . number_format($voucher->min_purchase, 0, ',', '.') . " untuk menggunakan voucher ini.");
+            }
+            
+            $voucherId = $voucher->id;
+            $discountAmount = $voucher->calculateDiscount($subtotal);
+        }
+
+        $order = DB::transaction(function () use ($data, $items, $productMap, $voucherId, $discountAmount) {
             $order = Order::create([
                 'status'         => Order::STATUS_PENDING,
                 'payment_method' => $data['payment_method'],
                 'buyer_id'       => $data['buyer_id'],
                 'seller_id'      => $data['seller_id'],
+                'notes'          => $data['notes'] ?? null,
+                'voucher_id'     => $voucherId,
+                'discount_amount'=> $discountAmount,
             ]);
 
             foreach ($items as $item) {
@@ -56,6 +95,10 @@ class OrderService
                 'seller_id' => $order->seller_id,
                 'items'     => $order->orderItems->count(),
             ]);
+
+            if ($voucherId) {
+                \App\Models\Voucher::where('id', $voucherId)->increment('claimed_count');
+            }
 
             return $order;
         });
@@ -125,6 +168,14 @@ class OrderService
         $order->status = Order::STATUS_ACCEPTED;
         $order->accepted_at = now();
         $order->save();
+
+        // Auto-deduct stok produk
+        foreach ($order->orderItems as $item) {
+            $product = $item->product;
+            if ($product && $product->stock !== null) {
+                $product->decrement('stock', $item->quantity);
+            }
+        }
 
         return $order;
     }

@@ -13,8 +13,11 @@ class Product extends Model
 
     protected $fillable = [
         'name',
+        'description',
         'price',
+        'stock',
         'category',
+        'category_id',
         'photo_path',
         'is_active',
         'seller_id',
@@ -23,11 +26,17 @@ class Product extends Model
     protected $casts = [
         'is_active' => 'boolean',
         'price'     => 'integer',
+        'stock'     => 'integer',
     ];
 
     public function seller()
     {
         return $this->belongsTo(Seller::class, 'seller_id');
+    }
+
+    public function categoryRelation()
+    {
+        return $this->belongsTo(Category::class, 'category_id');
     }
 
     /**

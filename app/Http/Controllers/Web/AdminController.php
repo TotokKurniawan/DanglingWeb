@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers\Web;
 
+use App\Models\ActivityLog;
+use App\Models\Buyer;
 use App\Models\Complaint;
+use App\Models\Order;
 use App\Models\Seller;
 use App\Models\User;
 use App\Services\Web\DashboardStatsService;
@@ -34,10 +37,98 @@ class AdminController extends Controller
         return view('admin.pedagang', compact('pedagangs'));
     }
 
+    /**
+     * Download CSV data pedagang.
+     */
+    public function exportSellers(Request $request)
+    {
+        $sellers = Seller::with('user')->get();
+
+        $headers = [
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=sellers_export_" . date('Y-m-d_H-i-s') . ".csv",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        ];
+
+        $columns = ['ID', 'Nama Toko', 'Email', 'Telepon', 'Status Online', 'Status Suspend', 'Rating', 'Jumlah Orders', 'Tanggal Gabung'];
+
+        $callback = function () use ($sellers, $columns) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns);
+
+            foreach ($sellers as $seller) {
+                $row = [
+                    $seller->id,
+                    $seller->store_name,
+                    $seller->user->email ?? '-',
+                    $seller->phone,
+                    $seller->is_online ? 'Online' : 'Offline',
+                    $seller->is_suspended ? 'Suspended' : 'Active',
+                    $seller->rating_average ?? 0,
+                    $seller->orders()->count(),
+                    $seller->created_at->format('Y-m-d H:i:s'),
+                ];
+                fputcsv($file, $row);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
     public function indexOperators()
     {
         $users = User::role('admin')->paginate(10);
         return view('admin.dataadmin', compact('users'));
+    }
+
+    public function indexBuyers(Request $request)
+    {
+        $query = Buyer::with('user');
+
+        if ($request->filled('search')) {
+            $query->whereHas('user', function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                  ->orWhere('email', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        $buyers = $query->paginate(10)->appends($request->query());
+        return view('admin.buyers', compact('buyers'));
+    }
+
+    public function indexOrders(Request $request)
+    {
+        $query = Order::with(['buyer.user', 'seller', 'orderItems.product']);
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('seller_id')) {
+            $query->where('seller_id', $request->seller_id);
+        }
+
+        $orders = $query->latest('created_at')->paginate(10)->appends($request->query());
+        $sellers = Seller::orderBy('store_name')->get(['id', 'store_name']);
+
+        return view('admin.orders', compact('orders', 'sellers'));
+    }
+
+    public function indexActivityLogs(Request $request)
+    {
+        $query = ActivityLog::with('user');
+
+        if ($request->filled('event')) {
+            $query->where('event', 'like', '%' . $request->event . '%');
+        }
+
+        $logs = $query->latest('created_at')->paginate(15)->appends($request->query());
+        
+        return view('admin.activity_logs', compact('logs'));
     }
 
     public function createOperatorForm()
@@ -80,6 +171,48 @@ class AdminController extends Controller
     }
 
     /**
+     * Download CSV data keluhan.
+     */
+    public function exportComplaints(Request $request)
+    {
+        $complaints = Complaint::with(['buyer.user', 'seller', 'order'])->get();
+
+        $headers = [
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=complaints_export_" . date('Y-m-d_H-i-s') . ".csv",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        ];
+
+        $columns = ['ID', 'Order ID', 'Pembeli', 'Penjual', 'Tipe', 'Deskripsi', 'Status', 'Tanggal Keluhan'];
+
+        $callback = function () use ($complaints, $columns) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns);
+
+            foreach ($complaints as $c) {
+                $row = [
+                    $c->id,
+                    $c->order->id ?? '-',
+                    $c->buyer->user->name ?? '-',
+                    $c->seller->store_name ?? '-',
+                    $c->type,
+                    $c->description,
+                    $c->status,
+                    $c->created_at->format('Y-m-d H:i:s'),
+                ];
+                fputcsv($file, $row);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+
+    /**
      * PATCH /admin/complaints/{id}/status — update status keluhan.
      */
     public function updateComplaintStatus(Request $request, $id)
@@ -104,5 +237,29 @@ class AdminController extends Controller
             return redirect()->back()->with('error', 'Admin user not found.');
         }
         return view('admin.profile', compact('user'));
+    }
+    /**
+     * PATCH /admin/sellers/{id}/suspend — toggle suspend seller.
+     */
+    public function toggleSuspend(Request $request, $id)
+    {
+        $seller = Seller::findOrFail($id);
+
+        $isSuspending = ! $seller->is_suspended;
+
+        $seller->update([
+            'is_suspended'    => $isSuspending,
+            'suspended_reason' => $isSuspending
+                ? $request->input('reason', 'Disuspend oleh admin.')
+                : null,
+        ]);
+
+        // Jika disuspend, otomatis set offline
+        if ($isSuspending) {
+            $seller->update(['is_online' => false]);
+        }
+
+        $message = $isSuspending ? 'Seller berhasil disuspend.' : 'Seller berhasil di-unsuspend.';
+        return redirect()->back()->with('success', $message);
     }
 }
