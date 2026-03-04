@@ -70,6 +70,7 @@ class SellerProductController extends Controller
             foreach ($sellers as $seller) {
                 $sellerData = [
                     'id'             => $seller->id,
+                    'user_id'        => $seller->user_id,
                     'store_name'     => $seller->store_name,
                     'address'        => $seller->address,
                     'phone'          => $seller->phone,
@@ -119,6 +120,7 @@ class SellerProductController extends Controller
 
         $data = [
             'id'             => $seller->id,
+            'user_id'        => $seller->user_id,
             'store_name'     => $seller->store_name,
             'address'        => $seller->address,
             'phone'          => $seller->phone,

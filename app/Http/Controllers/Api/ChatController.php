@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\MessageSent;
 use App\Http\Controllers\Controller;
 use App\Http\Traits\ApiResponse;
 use App\Models\Conversation;
@@ -9,6 +10,7 @@ use App\Models\Message;
 use App\Models\User;
 use App\Services\FcmNotificationService;
 use Illuminate\Http\Request;
+
 
 class ChatController extends Controller
 {
@@ -171,6 +173,9 @@ class ChatController extends Controller
                 'sender_id'       => $user->id,
                 'message'         => $request->message,
             ]);
+
+            // Broadcast ke semua subscriber channel real-time
+            broadcast(new MessageSent($message))->toOthers();
 
             // Target notifikasi
             $isBuyerSide = $conversation->buyer->user_id === $user->id;

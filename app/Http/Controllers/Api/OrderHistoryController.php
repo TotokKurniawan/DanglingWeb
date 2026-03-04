@@ -22,6 +22,25 @@ class OrderHistoryController extends Controller
             return $this->error('User not authenticated', 401);
         }
 
+        $roleContext = $request->query('role'); // 'buyer' or 'seller'
+
+        if ($roleContext === 'seller' && $user->seller) {
+            $orders = $this->orderService->getHistoryForSeller($user);
+            return $this->success([
+                'role' => 'pedagang',
+                'orders' => $this->formatOrdersForResponse($orders),
+            ], 'Success', 200);
+        }
+
+        if ($roleContext === 'buyer' && $user->buyer) {
+            $orders = $this->orderService->getHistoryForBuyer($user);
+            return $this->success([
+                'role' => 'pembeli',
+                'orders' => $this->formatOrdersForResponse($orders),
+            ], 'Success', 200);
+        }
+
+        // Fallback for missing context
         if ($user->buyer) {
             $orders = $this->orderService->getHistoryForBuyer($user);
             return $this->success([
