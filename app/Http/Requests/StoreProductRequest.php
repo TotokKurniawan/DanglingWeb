@@ -22,10 +22,13 @@ class StoreProductRequest extends FormRequest
         return [
             'name'        => 'required|string|max:255',
             'description' => 'nullable|string',
-            'price'       => 'required|numeric|min:0',
-            'stock'       => 'nullable|integer|min:0',
-            'category_id' => 'nullable|exists:categories,id',
-            'photo'       => 'nullable|image|max:2048',
+            'price'          => 'required|numeric|min:0',
+            'original_price' => 'nullable|numeric|min:0',
+            'stock'          => 'nullable|integer|min:0',
+            'category_id'    => 'nullable|exists:categories,id',
+            'photo'          => 'nullable|image|max:2048',
+            'images'         => 'nullable|array|max:5',
+            'images.*'       => 'image|max:2048',
         ];
     }
 }

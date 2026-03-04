@@ -76,4 +76,38 @@ class ProfileController extends Controller
         $data['photo_url'] = $seller->photo_path ? url('storage/' . $seller->photo_path) : null;
         return $this->success(['seller' => $data], 'Seller profile updated successfully', 200);
     }
+
+    public function uploadPhoto(Request $request)
+    {
+        $request->validate([
+            'photo' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        $user = $request->user();
+        if ($user->photo_path) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($user->photo_path);
+        }
+
+        $path = $request->file('photo')->store('users', 'public');
+        $user->photo_path = $path;
+        $user->save();
+
+        return $this->success([
+            'photo_url' => url('storage/' . $path)
+        ], 'Profile photo updated successfully', 200);
+    }
+
+    public function deleteAccount(Request $request)
+    {
+        $user = $request->user();
+
+        // Cabut semua token sesi agar ter-logout
+        $user->tokens()->delete();
+
+        // Hapus hard delete user (cascade menyesuaikan DB jika foreign key cascade)
+        // Atau akan dibiarkan tertahan jika constrain membatasi.
+        $user->delete();
+
+        return $this->success(null, 'Account deleted successfully', 200);
+    }
 }

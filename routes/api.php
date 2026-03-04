@@ -60,6 +60,11 @@ Route::middleware('throttle:10,1')->group(function () {
 Route::middleware('auth:api')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::put('/change-password', [PasswordController::class, 'changePassword']);
+    Route::delete('/account', [ProfileController::class, 'deleteAccount']);
+
+    // Profile buyer & seller
+    Route::post('/profile/photo', [ProfileController::class, 'uploadPhoto']);
+    Route::post('/buyers/{id}', [ProfileController::class, 'updateBuyerProfile']); // Pakai POST dengan _method=PUT untuk multipart/form-dataes
 
     // Buyer-only routes
     Route::middleware('role:buyer')->group(function () {

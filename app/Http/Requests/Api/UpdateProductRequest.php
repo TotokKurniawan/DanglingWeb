@@ -25,8 +25,11 @@ class UpdateProductRequest extends FormRequest
         return [
             'name' => 'sometimes|string|max:255',
             'price' => 'sometimes|numeric|min:0',
+            'original_price' => 'nullable|numeric|min:0',
             'category' => 'sometimes|string|max:100',
             'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'images' => 'nullable|array|max:5',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
         ];
     }
 }

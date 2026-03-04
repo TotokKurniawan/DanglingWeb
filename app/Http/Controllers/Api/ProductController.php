@@ -29,18 +29,10 @@ class ProductController extends Controller
         }
 
         $products = $this->productService->listForSeller($user);
+        $products->load('images');
 
         $items = $products->map(function ($p) {
-            return [
-                'id' => $p->id,
-                'name' => $p->name,
-                'price' => $p->price,
-                'category' => $p->category,
-                'photo_path' => $p->photo_path,
-                'photo_url' => $p->photo_path ? url('storage/' . $p->photo_path) : null,
-                'is_active' => $p->is_active,
-                'seller_id' => $p->seller_id,
-            ];
+            return $this->formatProduct($p);
         });
 
         return $this->success(['products' => $items], 'Success', 200);
@@ -76,7 +68,15 @@ class ProductController extends Controller
     {
         $data = $request->validated();
         $path = $request->file('photo')->store('products', 'public');
-        $product = $this->productService->createForSeller($request->user(), $data, $path);
+        
+        $imagesPaths = [];
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $file) {
+                $imagesPaths[] = $file->store('products', 'public');
+            }
+        }
+        
+        $product = $this->productService->createForSeller($request->user(), $data, $path, $imagesPaths);
 
         return $this->success([
             'product' => $this->formatProduct($product),
@@ -100,7 +100,15 @@ class ProductController extends Controller
         if ($request->hasFile('photo')) {
             $newPhotoPath = $request->file('photo')->store('products', 'public');
         }
-        $product = $this->productService->updateForSeller($request->user(), $product, $data, $newPhotoPath);
+
+        $newImagesPaths = [];
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $file) {
+                $newImagesPaths[] = $file->store('products', 'public');
+            }
+        }
+
+        $product = $this->productService->updateForSeller($request->user(), $product, $data, $newPhotoPath, $newImagesPaths);
 
         return $this->success(['product' => $this->formatProduct($product)], 'Product updated successfully', 200);
     }
@@ -136,13 +144,26 @@ class ProductController extends Controller
 
     protected function formatProduct(Product $product): array
     {
+        $images = [];
+        if ($product->relationLoaded('images') || $product->images()->exists()) {
+            foreach ($product->images as $img) {
+                $images[] = [
+                    'id' => $img->id,
+                    'url' => url('storage/' . $img->image_path),
+                    'is_primary' => $img->is_primary,
+                ];
+            }
+        }
+
         return [
             'id' => $product->id,
             'name' => $product->name,
             'price' => $product->price,
+            'original_price' => $product->original_price,
             'category' => $product->category,
             'photo_path' => $product->photo_path,
             'photo_url' => $product->photo_path ? url('storage/' . $product->photo_path) : null,
+            'images' => $images,
             'is_active' => $product->is_active,
             'seller_id' => $product->seller_id,
         ];
@@ -180,7 +201,7 @@ class ProductController extends Controller
         $perPage = min((int) $request->input('per_page', 20), 50);
 
         $query = Product::active()
-            ->with(['seller', 'categoryRelation'])
+            ->with(['seller', 'categoryRelation', 'images'])
             ->whereHas('seller', function ($q) {
                 $q->where('is_online', true)->where('is_suspended', false);
             });

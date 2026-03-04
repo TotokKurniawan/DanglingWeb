@@ -21,23 +21,33 @@ class ProductService
             ->get();
     }
 
-    public function createForSeller(User $sellerUser, array $data, string $storedPhotoPath): Product
+    public function createForSeller(User $sellerUser, array $data, string $storedPhotoPath, array $imagesPaths = []): Product
     {
         $seller = $sellerUser->seller;
         if (! $seller) {
             throw new \RuntimeException('You are not registered as a seller');
         }
 
-        return Product::create([
-            'name'       => $data['name'],
-            'price'      => (int) $data['price'],
-            'category'   => $data['category'],
-            'photo_path' => $storedPhotoPath,
-            'seller_id'  => $seller->id,
+        $product = Product::create([
+            'name'           => $data['name'],
+            'price'          => (int) $data['price'],
+            'original_price' => array_key_exists('original_price', $data) && $data['original_price'] !== null ? (int) $data['original_price'] : null,
+            'category'       => $data['category'],
+            'photo_path'     => $storedPhotoPath,
+            'seller_id'      => $seller->id,
         ]);
+
+        foreach ($imagesPaths as $index => $path) {
+            $product->images()->create([
+                'image_path' => $path,
+                'is_primary' => $index === 0,
+            ]);
+        }
+
+        return $product;
     }
 
-    public function updateForSeller(User $sellerUser, Product $product, array $data, ?string $newPhotoPath = null): Product
+    public function updateForSeller(User $sellerUser, Product $product, array $data, ?string $newPhotoPath = null, array $newImagesPaths = []): Product
     {
         $seller = $sellerUser->seller;
         if (! $seller || (int) $product->seller_id !== (int) $seller->id) {
@@ -50,6 +60,9 @@ class ProductService
         if (isset($data['price'])) {
             $product->price = (int) $data['price'];
         }
+        if (array_key_exists('original_price', $data)) {
+            $product->original_price = $data['original_price'] !== null ? (int) $data['original_price'] : null;
+        }
         if (isset($data['category'])) {
             $product->category = $data['category'];
         }
@@ -61,6 +74,15 @@ class ProductService
         }
 
         $product->save();
+
+        if (!empty($newImagesPaths)) {
+            foreach ($newImagesPaths as $path) {
+                $product->images()->create([
+                    'image_path' => $path,
+                    'is_primary' => false,
+                ]);
+            }
+        }
 
         return $product;
     }

@@ -15,6 +15,7 @@ class Product extends Model
         'name',
         'description',
         'price',
+        'original_price',
         'stock',
         'category',
         'category_id',
@@ -25,8 +26,9 @@ class Product extends Model
 
     protected $casts = [
         'is_active' => 'boolean',
-        'price'     => 'integer',
-        'stock'     => 'integer',
+        'price'          => 'integer',
+        'original_price' => 'integer',
+        'stock'          => 'integer',
     ];
 
     public function seller()
@@ -37,6 +39,11 @@ class Product extends Model
     public function categoryRelation()
     {
         return $this->belongsTo(Category::class, 'category_id');
+    }
+
+    public function images()
+    {
+        return $this->hasMany(ProductImage::class);
     }
 
     /**
