@@ -1,8 +1,8 @@
 # DanglingWeb
 
-Aplikasi marketplace berbasis Laravel 10: pembeli (buyer) dan pedagang (seller) terhubung via **REST API** (untuk mobile/app), plus **panel web** untuk admin dan operator.
+Aplikasi marketplace berbasis Laravel 11: pembeli (buyer) dan pedagang (seller) terhubung via **REST API** (untuk mobile/app), plus **panel web** untuk admin dan operator.
 
-- **Stack:** PHP 8.1+, Laravel 10, Laravel Passport (API token).
+- **Stack:** PHP 8.4+, Laravel 11, Laravel Passport (API token).
 - **Web:** Landing, login admin/operator, dashboard, kelola pedagang/keluhan/mitra.
 - **API:** Auth, upgrade ke seller, produk, order, riwayat order, status order, profil, lokasi seller.
 
