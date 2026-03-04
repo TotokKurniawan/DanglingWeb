@@ -51,6 +51,11 @@ class Handler extends ExceptionHandler
                 ], 403);
             }
 
+            // Validation exception (422)
+            if ($e instanceof ValidationException) {
+                return $this->invalidJson($request, $e);
+            }
+
             // Model not found → 404
             if ($e instanceof ModelNotFoundException) {
                 return response()->json([
