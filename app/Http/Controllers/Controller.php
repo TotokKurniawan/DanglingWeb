@@ -9,10 +9,10 @@ use Illuminate\Routing\Controller as BaseController;
 /**
  * @OA\Info(
  *      version="1.0.0",
- *      title="DanglingWeb API Documentation",
- *      description="L5 Swagger OpenApi API Documentation for DanglingWeb Application",
+ *      title="StreetMarketID API Documentation",
+ *      description="L5 Swagger OpenApi API Documentation for StreetMarketID Application",
  *      @OA\Contact(
- *          email="admin@danglingweb.test"
+ *          email="admin@StreetMarketID.test"
  *      )
  * )
  *

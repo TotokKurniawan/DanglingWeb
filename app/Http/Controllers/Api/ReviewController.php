@@ -16,6 +16,19 @@ class ReviewController extends Controller
     use ApiResponse;
 
     /**
+     * GET /api/sellers/{sellerId}/reviews — ambil daftar ulasan untuk toko tertentu.
+     */
+    public function indexBySeller($sellerId)
+    {
+        $reviews = Review::with(['buyer.user', 'order'])
+            ->where('seller_id', $sellerId)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return $this->success(['reviews' => $reviews], 'Success', 200);
+    }
+
+    /**
      * POST /api/reviews — pembeli submit review untuk pesanan yang sudah selesai.
      */
     public function store(StoreReviewRequest $request, SellerRatingService $ratingService, FcmNotificationService $fcmService)

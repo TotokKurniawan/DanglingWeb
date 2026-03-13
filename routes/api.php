@@ -120,8 +120,10 @@ Route::middleware('auth:api')->group(function () {
     });
 
     // Shared (any authenticated API user)
+    // Shared (any authenticated API user)
     Route::get('/sellers', [SellerProductController::class, 'getAllSellers']);
     Route::get('/sellers/{id}', [SellerProductController::class, 'getSellerById']);
+    Route::get('/sellers/{id}/reviews', [ReviewController::class, 'indexBySeller']);
     Route::get('/categories', [CategoryController::class, 'index']);
     Route::get('/products/search', [ProductController::class, 'search']);
 

@@ -9,7 +9,7 @@
             aria-hidden="true" id="iconSidenav"></i>
         <a class="navbar-brand m-1" href="{{ route('admin.dashboard') }}" target="_blank">
             <img src="{{ asset('admin_assets/img/logo-ct-dark.png') }}" class="navbar-brand-img h-100 " alt="main_logo">
-            <span class="ms-3 font-weight-bold">Dangling</span>
+            <span class="ms-3 font-weight-bold">StreetMarketID</span>
         </a>
     </div>
     <hr class="horizontal dark mt-0">
