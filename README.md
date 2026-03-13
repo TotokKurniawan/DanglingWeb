@@ -1,4 +1,4 @@
-# StreetMarketID Web
+# DanglingWeb
 
 Aplikasi marketplace berbasis Laravel 11: pembeli (buyer) dan pedagang (seller) terhubung via **REST API** (untuk mobile/app), plus **panel web** untuk admin dan operator.
 

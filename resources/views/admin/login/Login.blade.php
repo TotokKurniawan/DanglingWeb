@@ -21,7 +21,7 @@
     <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png">
     <link rel="icon" type="image/png" href="../assets/img/favicon.png">
     <title>
-        StreetMarketID || Login Admin
+        Dangling || Login Admin
     </title>
     <!--     Fonts and icons     -->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
@@ -94,8 +94,8 @@
           background-size: cover;">
                                 <span class="mask bg-gradient-primary opacity-6"></span>
                                 <h4 class="mt-5 text-white font-weight-bolder position-relative">"Welcome To The
-                                    StreetMarketID"</h4>
-                                <p class="text-white position-relative">StreetMarketID ialah sebuah aplikasi yang bertujuan
+                                    Dangling"</h4>
+                                <p class="text-white position-relative">Dangling ialah sebuah aplikasi yang bertujuan
                                     untuk memakmurkan pedangan keliling di sekitar batu</p>
                             </div>
                         </div>

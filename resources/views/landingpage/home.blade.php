@@ -6,13 +6,13 @@
             <div class="row gy-4">
                 <div class="col-lg-6 order-lg-last hero-img" data-aos="zoom-out" data-aos-delay="100">
                     <img src="{{ asset('landingpage/assets/img/hero-img.png') }}" class="img-fluid animated"
-                        alt="StreetMarketID App">
+                        alt="Dangling App">
                 </div>
                 <div class="col-lg-6 d-flex flex-column justify-content-center text-center text-md-start" data-aos="fade-in"
                     style="margin-top: -20px; padding-top: 0;">
-                    <h2>StreetMarketID</h2>
+                    <h2>Dangling</h2>
                     <p class="mt-2">Temukan dan panggil pedagang lokal di sekitar Anda dengan mudah melalui aplikasi
-                        StreetMarketID, dukung usaha kecil, dan nikmati kemudahan berbelanja langsung dari genggaman Anda.</p>
+                        Dangling, dukung usaha kecil, dan nikmati kemudahan berbelanja langsung dari genggaman Anda.</p>
                     <div class="d-flex mt-3 justify-content-center justify-content-md-start">
                         <a href="#" class="download-btn"><i class="bi bi-google-play"></i> <span>Google
                                 Play</span></a>
@@ -39,7 +39,7 @@
 
                 <div class="col-lg-6 content" data-aos="fade-up" data-aos-delay="100">
                     <p>
-                        StreetMarketID adalah platform yang memungkinkan Anda untuk menemukan dan memanggil pedagang keliling di
+                        Dangling adalah platform yang memungkinkan Anda untuk menemukan dan memanggil pedagang keliling di
                         sekitar Anda dengan mudah. Kami percaya bahwa mendukung pedagang lokal membantu komunitas tumbuh
                         lebih kuat dan membawa kenyamanan bagi semua.
                     </p>
@@ -54,7 +54,7 @@
                 </div>
 
                 <div class="col-lg-6" data-aos="fade-up" data-aos-delay="200">
-                    <p>Dengan StreetMarketID, kami tidak hanya menghubungkan Anda dengan pedagang lokal tetapi juga memberikan
+                    <p>Dengan Dangling, kami tidak hanya menghubungkan Anda dengan pedagang lokal tetapi juga memberikan
                         kesempatan bagi para pedagang untuk lebih berkembang dan menjangkau lebih banyak pelanggan. Ayo
                         dukung pedagang sekitar Anda dan nikmati layanan langsung ke lokasi Anda!</p>
                 </div>
@@ -71,7 +71,7 @@
         <!-- Section Title -->
         <div class="container section-title" data-aos="fade-up">
             <h2>Features</h2>
-            <p>Berikut adalah fitu fitur yang ada pada StreetMarketID</p>
+            <p>Berikut adalah fitu fitur yang ada pada Dangling</p>
         </div><!-- End Section Title -->
 
         <div class="container">
@@ -158,12 +158,12 @@
                 <div class="col-md-7" data-aos="fade-up" data-aos-delay="100">
                     <h3>Metode Pembayaran Biaya Admin</h3>
                     <p>
-                        Biaya admin di StreetMarketID itu hanya Rp 1000,- dan Metode Pembayaran yang digunakan aplikasi StreetMarketID
+                        Biaya admin di Dangling itu hanya Rp 1000,- dan Metode Pembayaran yang digunakan aplikasi Dangling
                         hanya ada 2 cara yaitu :
                     </p>
                     <ul>
                         <li><i class="bi bi-check"></i><span>Transfer Dana sesuai nomor yang ada di aplikasi
-                                StreetMarketID.</span></li>
+                                Dangling.</span></li>
                         <li><i class="bi bi-check"></i> <span>Pembayaran Cash melalui pedagang.</span></li>
                     </ul>
                 </div>
@@ -176,7 +176,7 @@
                 <div class="col-md-7 order-2 order-md-1" data-aos="fade-up" data-aos-delay="200">
                     <h3>Kemudahan dan Keamanan dalam Bertransaksi dengan Pedagang Lokal</h3>
                     <p class="fst-italic">
-                        Dengan *StreetMarketID*, berbelanja dari pedagang lokal menjadi lebih cepat, aman, dan praktis, langsung
+                        Dengan *Dangling*, berbelanja dari pedagang lokal menjadi lebih cepat, aman, dan praktis, langsung
                         dari kenyamanan rumah Anda.
                     </p>
                     <p>
@@ -194,7 +194,7 @@
                 </div>
                 <div class="col-md-7" data-aos="fade-up">
                     <h3>Kemudahan Akses ke Pedagang Lokal dengan Sekali Sentuhan</h3>
-                    <p>Dengan *StreetMarketID*, Anda dapat menemukan pedagang lokal yang ada di sekitar Anda secara real-time. Tak
+                    <p>Dengan *Dangling*, Anda dapat menemukan pedagang lokal yang ada di sekitar Anda secara real-time. Tak
                         perlu lagi mencari jauh-jauh, cukup buka aplikasi dan panggil pedagang yang Anda butuhkan.</p>
                     <ul>
                         <li><i class="bi bi-check"></i> <span>Akses instan ke berbagai layanan dan produk dari pedagang
@@ -216,7 +216,7 @@
         <!-- Section Title -->
         <div class="container section-title" data-aos="fade-up">
             <h2>Gallery</h2>
-            <p>Berikut adalah tampilan dari aplikasi StreetMarketID</p>
+            <p>Berikut adalah tampilan dari aplikasi Dangling</p>
         </div><!-- End Section Title -->
 
         <div class="container-fluid" data-aos="fade-up" data-aos-delay="100">
@@ -304,7 +304,7 @@
         <!-- Section Title -->
         <div class="container section-title" data-aos="fade-up">
             <h2>Testimonials</h2>
-            <p>Dibawah ini adalah testimoni dari pelanggan setelah menggunakan aplikasi StreetMarketID</p>
+            <p>Dibawah ini adalah testimoni dari pelanggan setelah menggunakan aplikasi Dangling</p>
         </div><!-- End Section Title -->
 
         <div class="container" data-aos="fade-up" data-aos-delay="100">
@@ -341,7 +341,7 @@
                         <div class="testimonial-wrap">
                             <div class="testimonial-item">
                                 <h3>Siti Rahma</h3>
-                                <h4>Pengguna Setia StreetMarketID</h4>
+                                <h4>Pengguna Setia Dangling</h4>
                                 <div class="stars">
                                     <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
                                         class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
@@ -349,7 +349,7 @@
                                 </div>
                                 <p>
                                     <i class="bi bi-quote quote-icon-left"></i>
-                                    <span>Aplikasi StreetMarketID benar-benar membantu saya dalam memenuhi kebutuhan sehari-hari.
+                                    <span>Aplikasi Dangling benar-benar membantu saya dalam memenuhi kebutuhan sehari-hari.
                                         Saya bisa memesan dari pedagang keliling dengan mudah, dan mereka bisa datang
                                         langsung ke lokasi saya. Sangat berguna, terutama saat cuaca tidak mendukung untuk
                                         keluar rumah!</span>
@@ -365,7 +365,7 @@
                         <div class="testimonial-wrap">
                             <div class="testimonial-item">
                                 <h3>Rian Setiawan</h3>
-                                <h4>Pengguna StreetMarketID</h4>
+                                <h4>Pengguna Dangling</h4>
                                 <div class="stars">
                                     <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
                                         class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i
@@ -373,7 +373,7 @@
                                 </div>
                                 <p>
                                     <i class="bi bi-quote quote-icon-left"></i>
-                                    <span>StreetMarketID sangat memudahkan saya untuk menemukan pedagang keliling di sekitar
+                                    <span>Dangling sangat memudahkan saya untuk menemukan pedagang keliling di sekitar
                                         rumah! Dengan sekali klik, saya bisa tahu pedagang mana yang sedang beroperasi dekat
                                         lokasi saya, jadi tidak perlu keluar jauh-jauh untuk mencari kebutuhan harian.
                                         Sangat praktis dan hemat waktu!</span>
@@ -396,7 +396,7 @@
                                 </div>
                                 <p>
                                     <i class="bi bi-quote quote-icon-left"></i>
-                                    <span>Sejak bergabung dengan aplikasi StreetMarketID, pelanggan saya semakin bertambah dan
+                                    <span>Sejak bergabung dengan aplikasi Dangling, pelanggan saya semakin bertambah dan
                                         lebih mudah ditemukan oleh mereka yang membutuhkan. Tidak hanya itu, saya bisa
                                         menjangkau lebih banyak wilayah tanpa khawatir tidak ada pembeli. Aplikasi ini
                                         sangat membantu dalam meningkatkan pendapatan saya!</span>
@@ -419,10 +419,10 @@
                                 </div>
                                 <p>
                                     <i class="bi bi-quote quote-icon-left"></i>
-                                    <span>StreetMarketID sangat membantu saya sebagai pedagang makanan keliling. Dengan aplikasi
+                                    <span>Dangling sangat membantu saya sebagai pedagang makanan keliling. Dengan aplikasi
                                         ini, saya dapat lebih mudah terhubung dengan pelanggan di sekitar dan mereka bisa
                                         memesan langsung. Pendapatan saya semakin stabil, dan saya tidak perlu keliling
-                                        terlalu jauh. Terima kasih, StreetMarketID!</span>
+                                        terlalu jauh. Terima kasih, Dangling!</span>
                                     <i class="bi bi-quote quote-icon-right"></i>
                                 </p>
                             </div>
